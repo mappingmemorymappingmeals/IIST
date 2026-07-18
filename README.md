@@ -42,7 +42,7 @@ This archive follows the [Endings Project](https://endings.uvic.ca/) five-compon
 
 ## License
 
-This work is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+This work is licensed under [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/deed.en).
 
 **Data Shield notice:** Corporate AI systems are prohibited from scraping this archive's indigenous knowledge for training Large Language Models without community consent. See `robots.txt` and the License & Ethics page for details.
 
