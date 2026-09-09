@@ -1,10 +1,46 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Mapping Memory, Mapping Meals — Dropdown Nav JS (FIXED)
+   Mapping Memory, Mapping Meals — Dropdown Nav JS  v3  (DEFINITIVE FIX)
    File: navbar-dropdown.js
-   Replace the old navbar-dropdown.js in your repo with this file.
+   ═══════════════════════════════════════════════════════════════════════════
+   ROOT CAUSE OF PREVIOUS FAILURE:
+   The site's navigation works by clicking <li> items whose TEXT CONTENT
+   matches labels like "About", "Archive Map", "Recipe Videos" etc.
+   The previous versions were searching for data-section attributes which
+   don't exist on those elements. This version finds the correct <li>
+   by text content and clicks it — triggering your existing site JS.
    ═══════════════════════════════════════════════════════════════════════════ */
+
 (function () {
   'use strict';
+
+  /* ── LOOKUP TABLE: data-section  →  exact text of the site's <li> nav item
+     These MUST match what your mobile nav <li> items say exactly.         */
+  var SECTION_MAP = {
+    'home':           'Home',
+    'about':          'About',
+    'archive-map':    'Archive Map',
+    'media':          'Media',
+    'recipe-videos':  'Recipe Videos',
+    'coverage':       'Coverage',
+    'academia':       'Academia',
+    'team':           'Team',
+    'special-credit': 'Special Credit',
+    'credits':        'Credits',
+    'acknowledgement':'Acknowledgement',
+    'submissions':    'Submissions',
+    'review':         'Review',
+    'blog-submit':    'Blog Submit',
+    'edit-data':      'Edit Data',
+    'bibliography':   'Bibliography',
+    'blogs':          'Blogs',
+    'interviews':     'Interviews',
+    'sustainability': 'Sustainability',
+    'license':        'License',
+    'faq':            'FAQ',
+    'feedback':       'Feedback',
+    'contact':        'Contact',
+    'cite':           'Cite'
+  };
 
   document.addEventListener('DOMContentLoaded', function () {
 
@@ -37,81 +73,61 @@
       });
     });
 
-    /* ── 3. NAVIGATION FIX — handles section switching ─────────────────── */
+    /* ── 3. DEFINITIVE NAVIGATION FIX ─────────────────────────────────── */
     nav.querySelectorAll('[data-section]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var target = el.dataset.section;
-
         closeAll();
         closeMobile();
 
-        /* --- Method A: click the matching item in the ORIGINAL nav ------- */
-        /* This finds any element outside our new nav that has the same
-           data-section value — i.e. your original nav buttons — and
-           clicks it so your existing site JS handles the switch.           */
-        var originalNavItems = document.querySelectorAll(
-          '[data-section="' + target + '"]'
-        );
-        var clicked = false;
-        originalNavItems.forEach(function (item) {
-          if (!item.closest('#mmmm-dropdown-nav') && !clicked) {
-            item.click();
-            clicked = true;
-          }
-        });
-        if (clicked) return;
+        var target  = el.dataset.section;
+        var navText = SECTION_MAP[target];
 
-        /* --- Method B: try common site navigation function names --------- */
-        var fnNames = [
-          'showSection', 'navigateTo', 'navigate', 'goTo',
-          'switchSection', 'loadSection', 'showPage', 'goToSection'
-        ];
-        for (var i = 0; i < fnNames.length; i++) {
-          if (typeof window[fnNames[i]] === 'function') {
-            window[fnNames[i]](target);
-            return;
+        if (!navText) return;
+
+        /* Find ALL <li> elements on the page that are NOT inside our new nav
+           and whose trimmed text content matches the target label exactly.
+           Click the first match — this triggers the site's existing JS.    */
+        var allLi = document.querySelectorAll('li');
+        var matched = false;
+
+        for (var i = 0; i < allLi.length; i++) {
+          var li = allLi[i];
+
+          /* Skip items inside our new dropdown nav */
+          if (li.closest('#mmmm-dropdown-nav')) continue;
+
+          var text = li.textContent.trim();
+
+          if (text === navText) {
+            li.click();
+            matched = true;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            break;
           }
         }
 
-        /* --- Method C: dispatch hash change (works with href="#section") - */
-        window.location.hash = target;
-        window.dispatchEvent(new HashChangeEvent('hashchange'));
-
-        /* --- Method D: directly show/hide sections by ID ----------------- */
-        /* Finds every element that looks like a content section and
-           shows the one whose id matches our target, hides the rest.       */
-        var allSections = document.querySelectorAll(
-          'section[id], div[id].section, div[id].page, ' +
-          'div[id].content-section, div[id].page-section, ' +
-          '[data-page], [data-nav-section]'
-        );
-
-        if (allSections.length > 0) {
-          allSections.forEach(function (sec) {
-            if (sec.id === target || sec.dataset.page === target ||
-                sec.dataset.navSection === target) {
-              sec.style.display = '';
-              sec.style.visibility = 'visible';
-              sec.style.opacity   = '1';
-              sec.removeAttribute('hidden');
-              sec.classList.remove('hidden', 'inactive', 'hide', 'd-none');
-              sec.classList.add('active', 'visible');
-            } else {
-              sec.style.display = 'none';
-              sec.classList.remove('active', 'visible');
-              sec.classList.add('hidden');
+        /* Fallback: also try <a> and <button> elements with matching text  */
+        if (!matched) {
+          var allClickable = document.querySelectorAll('a, button');
+          for (var j = 0; j < allClickable.length; j++) {
+            var el2 = allClickable[j];
+            if (el2.closest('#mmmm-dropdown-nav')) continue;
+            var t2 = el2.textContent.trim();
+            if (t2 === navText || t2.endsWith(navText)) {
+              el2.click();
+              matched = true;
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              break;
             }
-          });
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
+          }
         }
 
-        /* --- Method E: last resort — scroll to element with that ID ------ */
-        var el2 = document.getElementById(target);
-        if (el2) {
-          el2.scrollIntoView({ behavior: 'smooth' });
+        /* Last fallback: scroll to element with matching ID               */
+        if (!matched) {
+          var byId = document.getElementById(target);
+          if (byId) byId.scrollIntoView({ behavior: 'smooth' });
         }
       });
     });
@@ -122,12 +138,16 @@
       brand.addEventListener('click', function (e) {
         e.preventDefault();
         closeAll(); closeMobile();
-        var homeBtn = document.querySelector(
-          '[data-section="home"]:not(#mmmm-dropdown-nav [data-section])'
-        );
-        if (homeBtn) { homeBtn.click(); return; }
-        window.location.hash = '';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        /* Find the Home <li> and click it */
+        var allLi = document.querySelectorAll('li');
+        for (var i = 0; i < allLi.length; i++) {
+          if (allLi[i].closest('#mmmm-dropdown-nav')) continue;
+          if (allLi[i].textContent.trim() === 'Home') {
+            allLi[i].click();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            break;
+          }
+        }
       });
     }
 
@@ -163,6 +183,7 @@
         burger.setAttribute('aria-expanded', 'false');
       }
     }
+
   });
 
 })();
