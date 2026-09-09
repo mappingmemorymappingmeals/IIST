@@ -1,146 +1,234 @@
-/**
- * Navbar Dropdown Controller - Comprehensive Navigation Handler
- * Automatically handles link mapping, smooth scrolling to sections, 
- * page routing, and dropdown toggle events across all devices.
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Mapping Memory, Mapping Meals — Dropdown Nav JS  v6
+   File: navbar-dropdown.js
+   ═══════════════════════════════════════════════════════════════════════════
+   COMPLETELY NEW STRATEGY:
+   Instead of searching the entire page and risk clicking wrong elements,
+   v6 locates the SPECIFIC navigation <ul> on the page by fingerprinting it
+   (only the real nav ul contains "Archive Map" + "Recipe Videos" + "Blog Submit"
+   all together). Then it searches ONLY inside that ul. This guarantees
+   the correct element is clicked every time.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-document.addEventListener('DOMContentLoaded', function () {
-  // Map of link text terms (lowercase, normalized) -> Target Section ID or Route
-  const PAGE_MAP = {
-    'about': '#about',
-    'archive map': '#archive-map',
-    'archive': '#archive-map',
-    'map': '#archive-map',
-    'media': '#media',
-    'media section': '#media',
-    'recipe videos': '#recipe-videos',
-    '154 recipe videos': '#recipe-videos',
-    'videos': '#recipe-videos',
-    'coverage': '#media-coverage',
-    'media coverage': '#media-coverage',
-    'academia': '#academia',
-    'global academia': '#academia',
-    'team': '#team',
-    'our team': '#team',
-    'special credit': '#credits',
-    'credits': '#credits',
-    'other credits': '#credits',
-    'acknowledgement': '#acknowledgements',
-    'acknowledgements': '#acknowledgements',
-    'submissions': '#submissions',
-    'review': '#review',
-    'contribute a review': '#review',
-    'blog submit': '#blog-submit',
-    'submit a blog': '#blog-submit',
-    'edit data': '#edit-data',
-    'edit': '#edit-data',
-    'bibliography': '#bibliography',
-    'blogs': '#blogs',
-    'interviews': '#interviews',
-    'sustainability': '#sustainability',
-    'license': '#license',
-    'license & ethics': '#license',
-    'faq': '#faq',
-    'feedback': '#feedback',
-    'contact': '#contact',
-    'cite': '#cite',
-    'cite this project': '#cite',
-    'repo': 'https://github.com/mappingmemorymappingmeals/mappingmemoryproject'
+(function () {
+  'use strict';
+
+  /* Short labels used in the mobile nav <li> items — confirmed from live page */
+  var NAV_LABELS = {
+    'home':           'Home',
+    'about':          'About',
+    'archive-map':    'Archive Map',
+    'media':          'Media',
+    'recipe-videos':  'Recipe Videos',
+    'coverage':       'Coverage',
+    'academia':       'Academia',
+    'team':           'Team',
+    'special-credit': 'Special Credit',
+    'credits':        'Credits',
+    'acknowledgement':'Acknowledgement',
+    'submissions':    'Submissions',
+    'review':         'Review',
+    'blog-submit':    'Blog Submit',
+    'edit-data':      'Edit Data',
+    'bibliography':   'Bibliography',
+    'blogs':          'Blogs',
+    'interviews':     'Interviews',
+    'sustainability': 'Sustainability',
+    'license':        'License',
+    'faq':            'FAQ',
+    'feedback':       'Feedback',
+    'contact':        'Contact',
+    'cite':           'Cite'
   };
 
-  /**
-   * Clean text string for consistent matching (removes emojis, icons, whitespace)
-   */
-  function normalizeText(str) {
-    if (!str) return '';
-    return str
-      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') // strip emojis
-      .replace(/[^\w\s]/gi, '') // strip punctuation/icons
-      .toLowerCase()
-      .trim();
+  /* Cached reference to the site's real nav <ul> */
+  var _navUL   = null;
+  var _navEls  = null;  /* cached array of all nav <li>/<a>/<button> elements */
+
+  /* Find the site's real navigation <ul> by fingerprinting its unique content.
+     Only the real nav contains "Archive Map", "Recipe Videos" AND "Blog Submit"
+     together — no content section does.                                     */
+  function findNavUL() {
+    if (_navUL) return _navUL;
+    var uls = document.querySelectorAll('ul');
+    for (var i = 0; i < uls.length; i++) {
+      var ul = uls[i];
+      if (ul.closest('#mmmm-dropdown-nav')) continue;
+      var t = ul.textContent;
+      if (t.indexOf('Archive Map')    !== -1 &&
+          t.indexOf('Recipe Videos')  !== -1 &&
+          t.indexOf('Blog Submit')     !== -1) {
+        _navUL = ul;
+        return ul;
+      }
+    }
+    return null;
   }
 
-  /**
-   * Handles opening/closing dropdown toggles on mobile & desktop
-   */
-  function initDropdownToggles() {
-    const dropdownToggles = document.querySelectorAll('.dropdown-toggle, .nav-dropdown-toggle, [data-toggle="dropdown"]');
-    
-    dropdownToggles.forEach(toggle => {
-      toggle.addEventListener('click', function (e) {
+  /* Build a cached array of all clickable elements inside the nav ul */
+  function getNavItems() {
+    if (_navEls) return _navEls;
+    var ul = findNavUL();
+    if (!ul) return [];
+    /* Include <li>, <a>, <button> — whichever the site uses */
+    _navEls = Array.prototype.slice.call(ul.querySelectorAll('li, a, button'));
+    return _navEls;
+  }
+
+  /* Returns true if element text exactly equals the target label
+     OR ends with it (handles emoji prefix like "🏠 Home")            */
+  function elMatches(el, label) {
+    var txt = (el.textContent || '').trim().replace(/\s+/g, ' ');
+    return txt === label || txt.endsWith(label) || txt.endsWith(' ' + label);
+  }
+
+  /* Main navigation function */
+  function doNavigate(target) {
+    var label = NAV_LABELS[target];
+    if (!label) return;
+
+    /* ── Pass 1: search the real nav ul ─────────────────────────────── */
+    var items = getNavItems();
+    for (var i = 0; i < items.length; i++) {
+      if (elMatches(items[i], label)) {
+        clickEl(items[i]);
+        return;
+      }
+    }
+
+    /* ── Pass 2: search entire page for <li> matching the label ─────── */
+    var allLi = document.querySelectorAll('li');
+    for (var j = 0; j < allLi.length; j++) {
+      var li = allLi[j];
+      if (li.closest('#mmmm-dropdown-nav')) continue;
+      if (li.closest('footer'))             continue;
+      if (elMatches(li, label)) {
+        clickEl(li);
+        return;
+      }
+    }
+
+    /* ── Pass 3: search <a> and <button> anywhere except our nav/footer  */
+    var allLinks = document.querySelectorAll('a, button');
+    for (var k = 0; k < allLinks.length; k++) {
+      var lnk = allLinks[k];
+      if (lnk.closest('#mmmm-dropdown-nav')) continue;
+      if (lnk.closest('footer'))             continue;
+      if (elMatches(lnk, label)) {
+        clickEl(lnk);
+        return;
+      }
+    }
+
+    /* ── Pass 4: hash + scroll fallback ─────────────────────────────── */
+    window.location.hash = target;
+    window.dispatchEvent(new Event('hashchange'));
+    var byId = document.getElementById(target);
+    if (byId) byId.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* Click an element AND any direct <a>/<button> children it might have */
+  function clickEl(el) {
+    el.click();
+    var children = el.querySelectorAll('a, button');
+    for (var i = 0; i < children.length; i++) {
+      children[i].click();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ════════════════════════════════════════════════════════════════════ */
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    /* Pre-cache the nav references as soon as DOM is ready */
+    setTimeout(function () {
+      findNavUL();
+      getNavItems();
+    }, 200);
+
+    var nav    = document.getElementById('mmmm-dropdown-nav');
+    var burger = document.getElementById('dd-burger');
+    var menu   = document.getElementById('dd-menu');
+    if (!nav) return;
+
+    /* ── Hamburger ────────────────────────────────────────────────────── */
+    if (burger && menu) {
+      burger.addEventListener('click', function (e) {
         e.stopPropagation();
-        const parent = this.parentElement;
-        
-        // Close other open dropdowns
-        document.querySelectorAll('.dropdown.open, .nav-item.open').forEach(item => {
-          if (item !== parent) item.classList.remove('open', 'show');
-        });
-
-        parent.classList.toggle('open');
-        parent.classList.toggle('show');
+        var o = menu.classList.toggle('open');
+        burger.classList.toggle('open', o);
+        burger.setAttribute('aria-expanded', o);
       });
-    });
+    }
 
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function () {
-      document.querySelectorAll('.dropdown.open, .nav-dropdown-toggle.open, .show').forEach(item => {
-        item.classList.remove('open', 'show');
-      });
-    });
-  }
-
-  /**
-   * Attaches smart routing to all navigation links
-   */
-  function bindNavLinks() {
-    const navLinks = document.querySelectorAll('nav a, .navbar a, .dropdown-menu a, .nav-link, .dropdown-item');
-
-    navLinks.forEach(link => {
-      link.addEventListener('click', function (e) {
-        const rawText = this.innerText || this.textContent;
-        const cleanText = normalizeText(rawText);
-        const href = this.getAttribute('href');
-
-        // Check map for target
-        let targetDestination = null;
-        for (const [key, value] of Object.entries(PAGE_MAP)) {
-          if (cleanText.includes(key) || key.includes(cleanText)) {
-            targetDestination = value;
-            break;
-          }
-        }
-
-        // If target exists in our map
-        if (targetDestination) {
-          if (targetDestination.startsWith('#')) {
-            const targetElement = document.querySelector(targetDestination);
-            
-            // If on the same page with target element present -> Smooth Scroll
-            if (targetElement) {
-              e.preventDefault();
-              targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-              // Close mobile navigation menu if open
-              const navCollapse = document.querySelector('.navbar-collapse, .nav-menu');
-              if (navCollapse) navCollapse.classList.remove('show', 'active', 'open');
-            } else {
-              // If target element is not on the current page, redirect to index page with target hash
-              if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
-                e.preventDefault();
-                window.location.href = '/' + targetDestination;
-              }
-            }
-          } else if (targetDestination.startsWith('http')) {
-            // External routing (e.g. Repo)
-            e.preventDefault();
-            window.open(targetDestination, '_blank');
-          }
+    /* ── Dropdown toggle ──────────────────────────────────────────────── */
+    nav.querySelectorAll('.dd-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var item    = btn.closest('.dd-item');
+        var wasOpen = item.classList.contains('open');
+        closeAll();
+        if (!wasOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
         }
       });
     });
-  }
 
-  // Run initialization
-  initDropdownToggles();
-  bindNavLinks();
-});
+    /* ── Section navigation ───────────────────────────────────────────── */
+    nav.querySelectorAll('[data-section]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAll();
+        closeMobile();
+        doNavigate(el.dataset.section);
+      });
+    });
+
+    /* ── Brand → Home ─────────────────────────────────────────────────── */
+    var brand = nav.querySelector('.dd-brand');
+    if (brand) {
+      brand.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeAll(); closeMobile();
+        doNavigate('home');
+      });
+    }
+
+    /* ── Outside click ────────────────────────────────────────────────── */
+    document.addEventListener('click', function () { closeAll(); closeMobile(); });
+    nav.querySelectorAll('.dd-panel').forEach(function (p) {
+      p.addEventListener('click', function (e) { e.stopPropagation(); });
+    });
+
+    /* ── Escape ───────────────────────────────────────────────────────── */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeAll(); closeMobile(); }
+    });
+
+    /* ── Sticky shadow ────────────────────────────────────────────────── */
+    window.addEventListener('scroll', function () {
+      nav.style.boxShadow = window.scrollY > 6
+        ? '0 4px 28px rgba(0,0,0,.8)' : '0 2px 18px rgba(0,0,0,.65)';
+    }, { passive: true });
+
+    /* ── helpers ──────────────────────────────────────────────────────── */
+    function closeAll() {
+      nav.querySelectorAll('.dd-item.open').forEach(function (i) {
+        i.classList.remove('open');
+        var b = i.querySelector('.dd-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+    }
+    function closeMobile() {
+      if (menu)   menu.classList.remove('open');
+      if (burger) {
+        burger.classList.remove('open');
+        burger.setAttribute('aria-expanded', 'false');
+      }
+    }
+  });
+
+})();
