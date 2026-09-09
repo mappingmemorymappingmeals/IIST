@@ -1,10 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Mapping Memory, Mapping Meals — Dropdown Nav JS
+   Mapping Memory, Mapping Meals — Dropdown Nav JS (FIXED)
    File: navbar-dropdown.js
-   Upload to: root of your GitHub repo
-   ═══════════════════════════════════════════════════════════════════════════
-   HOW TO ADD: paste this ONE line just before </body> in your index.html:
-   <script src="navbar-dropdown.js"></script>
+   Replace the old navbar-dropdown.js in your repo with this file.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -40,58 +37,97 @@
       });
     });
 
-    /* ── 3. Section navigation — hooks into the EXISTING site SPA ─────── */
-    /*   Your site uses data-section attributes on nav items to switch
-         visible sections. Every .dd-row[data-section] click below fires
-         the same mechanism the existing nav uses, so your page JS handles
-         the actual show/hide — this file just closes the dropdown after.  */
+    /* ── 3. NAVIGATION FIX — handles section switching ─────────────────── */
     nav.querySelectorAll('[data-section]').forEach(function (el) {
       el.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         var target = el.dataset.section;
+
         closeAll();
         closeMobile();
 
-        // ① Try triggering your existing site navigation system.
-        //   Method A: find a matching element in the ORIGINAL (now hidden)
-        //   nav and click it — so your original JS fires.
-        var original = document.querySelector(
-          '[data-section="' + target + '"]:not(#mmmm-dropdown-nav [data-section])'
+        /* --- Method A: click the matching item in the ORIGINAL nav ------- */
+        /* This finds any element outside our new nav that has the same
+           data-section value — i.e. your original nav buttons — and
+           clicks it so your existing site JS handles the switch.           */
+        var originalNavItems = document.querySelectorAll(
+          '[data-section="' + target + '"]'
         );
-        if (original) {
-          original.click();
+        var clicked = false;
+        originalNavItems.forEach(function (item) {
+          if (!item.closest('#mmmm-dropdown-nav') && !clicked) {
+            item.click();
+            clicked = true;
+          }
+        });
+        if (clicked) return;
+
+        /* --- Method B: try common site navigation function names --------- */
+        var fnNames = [
+          'showSection', 'navigateTo', 'navigate', 'goTo',
+          'switchSection', 'loadSection', 'showPage', 'goToSection'
+        ];
+        for (var i = 0; i < fnNames.length; i++) {
+          if (typeof window[fnNames[i]] === 'function') {
+            window[fnNames[i]](target);
+            return;
+          }
+        }
+
+        /* --- Method C: dispatch hash change (works with href="#section") - */
+        window.location.hash = target;
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+
+        /* --- Method D: directly show/hide sections by ID ----------------- */
+        /* Finds every element that looks like a content section and
+           shows the one whose id matches our target, hides the rest.       */
+        var allSections = document.querySelectorAll(
+          'section[id], div[id].section, div[id].page, ' +
+          'div[id].content-section, div[id].page-section, ' +
+          '[data-page], [data-nav-section]'
+        );
+
+        if (allSections.length > 0) {
+          allSections.forEach(function (sec) {
+            if (sec.id === target || sec.dataset.page === target ||
+                sec.dataset.navSection === target) {
+              sec.style.display = '';
+              sec.style.visibility = 'visible';
+              sec.style.opacity   = '1';
+              sec.removeAttribute('hidden');
+              sec.classList.remove('hidden', 'inactive', 'hide', 'd-none');
+              sec.classList.add('active', 'visible');
+            } else {
+              sec.style.display = 'none';
+              sec.classList.remove('active', 'visible');
+              sec.classList.add('hidden');
+            }
+          });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
 
-        // ② Fallback: dispatch a custom 'navigate' event the site may listen for
-        document.dispatchEvent(new CustomEvent('mmmm:navigate', { detail: target }));
-
-        // ③ Fallback: show section by ID, hide all others
-        var sections = document.querySelectorAll('[id]');
-        sections.forEach(function (sec) {
-          var show = (sec.id === target || sec.id === 'section-' + target);
-          if (sec.tagName !== 'SCRIPT' && sec.tagName !== 'STYLE' &&
-              !sec.closest('#mmmm-dropdown-nav')) {
-            // only touch elements that look like content sections
-            if (sec.dataset.navSection !== undefined ||
-                sec.classList.contains('section') ||
-                sec.classList.contains('page-section')) {
-              sec.style.display = show ? '' : 'none';
-            }
-          }
-        });
+        /* --- Method E: last resort — scroll to element with that ID ------ */
+        var el2 = document.getElementById(target);
+        if (el2) {
+          el2.scrollIntoView({ behavior: 'smooth' });
+        }
       });
     });
 
-    /* ── 4. Brand click → Home ─────────────────────────────────────────── */
+    /* ── 4. Brand → Home ───────────────────────────────────────────────── */
     var brand = nav.querySelector('.dd-brand');
     if (brand) {
       brand.addEventListener('click', function (e) {
         e.preventDefault();
         closeAll(); closeMobile();
-        var homeEl = document.querySelector(
+        var homeBtn = document.querySelector(
           '[data-section="home"]:not(#mmmm-dropdown-nav [data-section])'
         );
-        if (homeEl) homeEl.click();
+        if (homeBtn) { homeBtn.click(); return; }
+        window.location.hash = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
 
@@ -106,7 +142,7 @@
       if (e.key === 'Escape') { closeAll(); closeMobile(); }
     });
 
-    /* ── 7. Sticky shadow on scroll ────────────────────────────────────── */
+    /* ── 7. Sticky shadow ───────────────────────────────────────────────── */
     window.addEventListener('scroll', function () {
       nav.style.boxShadow = window.scrollY > 6
         ? '0 4px 28px rgba(0,0,0,.8)' : '0 2px 18px rgba(0,0,0,.65)';
