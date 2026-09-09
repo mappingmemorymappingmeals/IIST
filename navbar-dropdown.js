@@ -1,158 +1,184 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Mapping Memory, Mapping Meals — Dropdown Nav JS  v6
-   File: navbar-dropdown.js
-   ═══════════════════════════════════════════════════════════════════════════
-   COMPLETELY NEW STRATEGY:
-   Instead of searching the entire page and risk clicking wrong elements,
-   v6 locates the SPECIFIC navigation <ul> on the page by fingerprinting it
-   (only the real nav ul contains "Archive Map" + "Recipe Videos" + "Blog Submit"
-   all together). Then it searches ONLY inside that ul. This guarantees
-   the correct element is clicked every time.
+   Mapping Memory, Mapping Meals — Complete Dropdown Navigation
+   File: navbar-dropdown.js  (FINAL — covers all 24 sections)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  /* Short labels used in the mobile nav <li> items — confirmed from live page */
-  var NAV_LABELS = {
-    'home':           'Home',
-    'about':          'About',
-    'archive-map':    'Archive Map',
-    'media':          'Media',
-    'recipe-videos':  'Recipe Videos',
-    'coverage':       'Coverage',
-    'academia':       'Academia',
-    'team':           'Team',
-    'special-credit': 'Special Credit',
-    'credits':        'Credits',
-    'acknowledgement':'Acknowledgement',
-    'submissions':    'Submissions',
-    'review':         'Review',
-    'blog-submit':    'Blog Submit',
-    'edit-data':      'Edit Data',
-    'bibliography':   'Bibliography',
-    'blogs':          'Blogs',
-    'interviews':     'Interviews',
-    'sustainability': 'Sustainability',
-    'license':        'License',
-    'faq':            'FAQ',
-    'feedback':       'Feedback',
-    'contact':        'Contact',
-    'cite':           'Cite'
+  /* ── Every possible label for each section ──────────────────────────── */
+  /* Listed in matching priority order. Covers both mobile nav (short) and
+     desktop nav (long with emoji prefix), plus section heading text.      */
+  var LABELS = {
+    'home':           ['Home'],
+    'about':          ['About', 'About the Project'],
+    'archive-map':    ['Archive Map'],
+    'media':          ['Media Section', 'Media'],
+    'recipe-videos':  ['Recipe Videos', '154 Recipe Videos'],
+    'coverage':       ['Media Coverage', 'Coverage'],
+    'academia':       ['Global Academia', 'Academia', 'Global Academic'],
+    'team':           ['Our Team', 'Team'],
+    'special-credit': ['Special Credit'],
+    'credits':        ['Other Credits', 'Credits', 'Significant'],
+    'acknowledgement':['Acknowledgement', 'Acknowledgements'],
+    'submissions':    ['Submissions'],
+    'review':         ['Contribute a Review', 'Review'],
+    'blog-submit':    ['Submit a Blog', 'Blog Submit'],
+    'edit-data':      ['Edit Data', 'Edit Archive'],
+    'bibliography':   ['Bibliography'],
+    'blogs':          ['Blogs', 'Academic Blogs'],
+    'interviews':     ['Interviews'],
+    'sustainability': ['Sustainability', 'Digital Sustainability'],
+    'license':        ['License & Ethics', 'License', 'Ethics'],
+    'faq':            ['FAQ', 'Frequently Asked'],
+    'feedback':       ['Feedback', 'Share Your Feedback'],
+    'contact':        ['Contact', 'Get In Touch'],
+    'cite':           ['Cite This Project', 'Cite', 'How to Cite']
   };
 
-  /* Cached reference to the site's real nav <ul> */
-  var _navUL   = null;
-  var _navEls  = null;  /* cached array of all nav <li>/<a>/<button> elements */
+  /* ── Cached nav UL and items ────────────────────────────────────────── */
+  var _navUL = null;
 
-  /* Find the site's real navigation <ul> by fingerprinting its unique content.
-     Only the real nav contains "Archive Map", "Recipe Videos" AND "Blog Submit"
-     together — no content section does.                                     */
   function findNavUL() {
     if (_navUL) return _navUL;
+    /* Fingerprint: the real nav UL contains all three of these unique items */
     var uls = document.querySelectorAll('ul');
     for (var i = 0; i < uls.length; i++) {
-      var ul = uls[i];
-      if (ul.closest('#mmmm-dropdown-nav')) continue;
-      var t = ul.textContent;
-      if (t.indexOf('Archive Map')    !== -1 &&
-          t.indexOf('Recipe Videos')  !== -1 &&
-          t.indexOf('Blog Submit')     !== -1) {
-        _navUL = ul;
-        return ul;
+      var u = uls[i];
+      if (u.closest('#mmmm-dropdown-nav')) continue;
+      var t = u.textContent;
+      if (t.indexOf('Archive Map')   !== -1 &&
+          t.indexOf('Recipe Videos') !== -1 &&
+          t.indexOf('Blog Submit')   !== -1) {
+        _navUL = u;
+        return u;
       }
     }
     return null;
   }
 
-  /* Build a cached array of all clickable elements inside the nav ul */
-  function getNavItems() {
-    if (_navEls) return _navEls;
-    var ul = findNavUL();
-    if (!ul) return [];
-    /* Include <li>, <a>, <button> — whichever the site uses */
-    _navEls = Array.prototype.slice.call(ul.querySelectorAll('li, a, button'));
-    return _navEls;
+  /* ── Text matching ──────────────────────────────────────────────────── */
+  function elText(el) {
+    return (el.textContent || '').trim().replace(/\s+/g, ' ');
   }
 
-  /* Returns true if element text exactly equals the target label
-     OR ends with it (handles emoji prefix like "🏠 Home")            */
-  function elMatches(el, label) {
-    var txt = (el.textContent || '').trim().replace(/\s+/g, ' ');
-    return txt === label || txt.endsWith(label) || txt.endsWith(' ' + label);
+  function elMatches(el, labels) {
+    var txt = elText(el);
+    if (!txt || txt.length > 120) return false;
+    return labels.some(function (l) {
+      return txt === l ||
+             txt.endsWith(l) ||
+             txt.endsWith(' ' + l) ||
+             (l.length >= 7 && txt.indexOf(l) !== -1);
+    });
   }
 
-  /* Main navigation function */
+  /* ── Click an element (and its clickable children) ──────────────────── */
+  function fireClick(el) {
+    /* standard programmatic click */
+    el.click();
+
+    /* more complete MouseEvent — works better with some frameworks */
+    try {
+      el.dispatchEvent(new MouseEvent('click', {
+        bubbles: true, cancelable: true, view: window, button: 0
+      }));
+    } catch (e) {}
+
+    /* also click any <a> or <button> children */
+    var ch = el.querySelectorAll('a, button');
+    for (var i = 0; i < ch.length; i++) { ch[i].click(); }
+  }
+
+  /* ── Core navigation ────────────────────────────────────────────────── */
   function doNavigate(target) {
-    var label = NAV_LABELS[target];
-    if (!label) return;
+    var labels = LABELS[target];
+    if (!labels) return;
 
-    /* ── Pass 1: search the real nav ul ─────────────────────────────── */
-    var items = getNavItems();
-    for (var i = 0; i < items.length; i++) {
-      if (elMatches(items[i], label)) {
-        clickEl(items[i]);
-        return;
+    /* ── PASS A: within the fingerprinted nav UL ────────────────────── */
+    var navUL = findNavUL();
+    if (navUL) {
+      var navItems = navUL.querySelectorAll('li, a, button');
+      for (var a = 0; a < navItems.length; a++) {
+        if (elMatches(navItems[a], labels)) {
+          fireClick(navItems[a]);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
       }
     }
 
-    /* ── Pass 2: search entire page for <li> matching the label ─────── */
+    /* ── PASS B: any nav / header element (not ours) ────────────────── */
+    var navEls = document.querySelectorAll(
+      'nav:not(#mmmm-dropdown-nav), header:not(#mmmm-dropdown-nav)'
+    );
+    for (var b = 0; b < navEls.length; b++) {
+      var candidates = navEls[b].querySelectorAll('a, button, li, span');
+      for (var bi = 0; bi < candidates.length; bi++) {
+        var c = candidates[bi];
+        if (c.closest('#mmmm-dropdown-nav')) continue;
+        if (elMatches(c, labels)) {
+          fireClick(c);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+      }
+    }
+
+    /* ── PASS C: ALL <li> on page (not our nav, not footer) ─────────── */
     var allLi = document.querySelectorAll('li');
-    for (var j = 0; j < allLi.length; j++) {
-      var li = allLi[j];
+    for (var c2 = 0; c2 < allLi.length; c2++) {
+      var li = allLi[c2];
       if (li.closest('#mmmm-dropdown-nav')) continue;
       if (li.closest('footer'))             continue;
-      if (elMatches(li, label)) {
-        clickEl(li);
+      if (elMatches(li, labels)) {
+        fireClick(li);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
 
-    /* ── Pass 3: search <a> and <button> anywhere except our nav/footer  */
-    var allLinks = document.querySelectorAll('a, button');
-    for (var k = 0; k < allLinks.length; k++) {
-      var lnk = allLinks[k];
-      if (lnk.closest('#mmmm-dropdown-nav')) continue;
-      if (lnk.closest('footer'))             continue;
-      if (elMatches(lnk, label)) {
-        clickEl(lnk);
+    /* ── PASS D: ALL <a> and <button> (not our nav, not footer) ─────── */
+    var allAB = document.querySelectorAll('a, button');
+    for (var d = 0; d < allAB.length; d++) {
+      var el = allAB[d];
+      if (el.closest('#mmmm-dropdown-nav')) continue;
+      if (el.closest('footer'))             continue;
+      if (elMatches(el, labels)) {
+        fireClick(el);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
 
-    /* ── Pass 4: hash + scroll fallback ─────────────────────────────── */
+    /* ── PASS E: hash navigation fallback ───────────────────────────── */
     window.location.hash = target;
     window.dispatchEvent(new Event('hashchange'));
-    var byId = document.getElementById(target);
-    if (byId) byId.scrollIntoView({ behavior: 'smooth' });
-  }
 
-  /* Click an element AND any direct <a>/<button> children it might have */
-  function clickEl(el) {
-    el.click();
-    var children = el.querySelectorAll('a, button');
-    for (var i = 0; i < children.length; i++) {
-      children[i].click();
+    /* ── PASS F: scroll to matching heading as absolute last resort ──── */
+    var heads = document.querySelectorAll('h1,h2,h3,h4');
+    for (var f = 0; f < heads.length; f++) {
+      if (heads[f].closest('#mmmm-dropdown-nav')) continue;
+      if (elMatches(heads[f], labels)) {
+        heads[f].scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /* ════════════════════════════════════════════════════════════════════ */
+  /* ═════════════════════════════════════════════════════════════════════ */
 
   document.addEventListener('DOMContentLoaded', function () {
 
-    /* Pre-cache the nav references as soon as DOM is ready */
-    setTimeout(function () {
-      findNavUL();
-      getNavItems();
-    }, 200);
+    /* Pre-warm cache */
+    setTimeout(findNavUL, 300);
 
     var nav    = document.getElementById('mmmm-dropdown-nav');
     var burger = document.getElementById('dd-burger');
     var menu   = document.getElementById('dd-menu');
     if (!nav) return;
 
-    /* ── Hamburger ────────────────────────────────────────────────────── */
+    /* ── Hamburger ──────────────────────────────────────────────────── */
     if (burger && menu) {
       burger.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -162,7 +188,7 @@
       });
     }
 
-    /* ── Dropdown toggle ──────────────────────────────────────────────── */
+    /* ── Dropdown toggles ───────────────────────────────────────────── */
     nav.querySelectorAll('.dd-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -176,7 +202,7 @@
       });
     });
 
-    /* ── Section navigation ───────────────────────────────────────────── */
+    /* ── Section links ──────────────────────────────────────────────── */
     nav.querySelectorAll('[data-section]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
@@ -187,7 +213,7 @@
       });
     });
 
-    /* ── Brand → Home ─────────────────────────────────────────────────── */
+    /* ── Brand → Home ───────────────────────────────────────────────── */
     var brand = nav.querySelector('.dd-brand');
     if (brand) {
       brand.addEventListener('click', function (e) {
@@ -197,24 +223,24 @@
       });
     }
 
-    /* ── Outside click ────────────────────────────────────────────────── */
+    /* ── Outside click closes ───────────────────────────────────────── */
     document.addEventListener('click', function () { closeAll(); closeMobile(); });
     nav.querySelectorAll('.dd-panel').forEach(function (p) {
       p.addEventListener('click', function (e) { e.stopPropagation(); });
     });
 
-    /* ── Escape ───────────────────────────────────────────────────────── */
+    /* ── Escape key ─────────────────────────────────────────────────── */
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeAll(); closeMobile(); }
     });
 
-    /* ── Sticky shadow ────────────────────────────────────────────────── */
+    /* ── Sticky shadow ──────────────────────────────────────────────── */
     window.addEventListener('scroll', function () {
       nav.style.boxShadow = window.scrollY > 6
         ? '0 4px 28px rgba(0,0,0,.8)' : '0 2px 18px rgba(0,0,0,.65)';
     }, { passive: true });
 
-    /* ── helpers ──────────────────────────────────────────────────────── */
+    /* ── helpers ────────────────────────────────────────────────────── */
     function closeAll() {
       nav.querySelectorAll('.dd-item.open').forEach(function (i) {
         i.classList.remove('open');
