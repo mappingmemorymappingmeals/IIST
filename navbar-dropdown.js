@@ -1,140 +1,118 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Mapping Memory, Mapping Meals — Dropdown Nav JS  v4  (COMPLETE FIX)
+   Mapping Memory, Mapping Meals — Dropdown Nav JS  v5  (FINAL FIX)
    File: navbar-dropdown.js
    ═══════════════════════════════════════════════════════════════════════════
-   ROOT CAUSE OF v3 FAILURES:
-   Some nav <li> items have child elements (icons/spans) so their
-   textContent is "📺 Recipe Videos" not just "Recipe Videos".
-   Strict equality === was failing. v4 uses includes() + searches the
-   ORIGINAL nav element first + tries 5 different strategies.
+   ROOT CAUSE OF ALL PREVIOUS FAILURES:
+   The mobile nav uses short labels ("Media", "Coverage", "Credits", "Cite")
+   while the desktop nav uses long labels ("Media Section", "Media Coverage",
+   "Other Credits", "Cite This Project"). Previous versions searched for
+   one but the page had the other. v5 searches for BOTH simultaneously,
+   tries <a> and <button> BEFORE <li>, and clicks child elements too.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  /* ── MAP: data-section → keywords that appear in that nav item's text ── */
-  var SECTION_MAP = {
-    'home':           'Home',
-    'about':          'About',
-    'archive-map':    'Archive Map',
-    'media':          'Media Section',
-    'recipe-videos':  'Recipe Videos',
-    'coverage':       'Media Coverage',
-    'academia':       'Global Academia',
-    'team':           'Our Team',
-    'special-credit': 'Special Credit',
-    'credits':        'Other Credits',
-    'acknowledgement':'Acknowledgement',
-    'submissions':    'Submissions',
-    'review':         'Contribute a Review',
-    'blog-submit':    'Submit a Blog',
-    'edit-data':      'Edit Data',
-    'bibliography':   'Bibliography',
-    'blogs':          'Blogs',
-    'interviews':     'Interviews',
-    'sustainability': 'Sustainability',
-    'license':        'License',
-    'faq':            'FAQ',
-    'feedback':       'Feedback',
-    'contact':        'Contact',
-    'cite':           'Cite This Project'
+  /* Each entry = array of ALL possible text strings for that section,
+     covering both the desktop nav (long) and mobile nav (short).
+     Order: most specific first.                                             */
+  var TEXTS = {
+    'home':           ['Home'],
+    'about':          ['About'],
+    'archive-map':    ['Archive Map'],
+    'media':          ['Media Section', 'Media'],
+    'recipe-videos':  ['154 Recipe Videos', 'Recipe Videos'],
+    'coverage':       ['Media Coverage', 'Coverage'],
+    'academia':       ['Global Academia', 'Academia'],
+    'team':           ['Our Team', 'Team'],
+    'special-credit': ['Special Credit'],
+    'credits':        ['Other Credits', 'Credits'],
+    'acknowledgement':['Acknowledgement'],
+    'submissions':    ['Submissions'],
+    'review':         ['Contribute a Review', 'Review'],
+    'blog-submit':    ['Submit a Blog', 'Blog Submit'],
+    'edit-data':      ['Edit Data'],
+    'bibliography':   ['Bibliography'],
+    'blogs':          ['Blogs'],
+    'interviews':     ['Interviews'],
+    'sustainability': ['Sustainability'],
+    'license':        ['License & Ethics', 'License'],
+    'faq':            ['FAQ'],
+    'feedback':       ['Feedback'],
+    'contact':        ['Contact'],
+    'cite':           ['Cite This Project', 'Cite']
   };
 
-  /* Also keep short fallback keywords for includes() matching */
-  var FALLBACK_MAP = {
-    'home':           'Home',
-    'about':          'About',
-    'archive-map':    'Archive Map',
-    'media':          'Media',
-    'recipe-videos':  'Recipe Videos',
-    'coverage':       'Coverage',
-    'academia':       'Academia',
-    'team':           'Team',
-    'special-credit': 'Special Credit',
-    'credits':        'Credits',
-    'acknowledgement':'Acknowledgement',
-    'submissions':    'Submissions',
-    'review':         'Review',
-    'blog-submit':    'Blog',
-    'edit-data':      'Edit Data',
-    'bibliography':   'Bibliography',
-    'blogs':          'Blogs',
-    'interviews':     'Interviews',
-    'sustainability': 'Sustainability',
-    'license':        'License',
-    'faq':            'FAQ',
-    'feedback':       'Feedback',
-    'contact':        'Contact',
-    'cite':           'Cite'
-  };
+  /* Returns true if the element's trimmed text matches any of the patterns. */
+  function matches(el, patterns) {
+    var raw = el.textContent || '';
+    var txt = raw.trim().replace(/\s+/g, ' ');
+    if (txt.length > 100) return false;       /* skip paragraphs */
+    return patterns.some(function (p) {
+      return txt === p ||                     /* exact */
+             txt.endsWith(p) ||              /* emoji prefix: "🗺 Archive Map" ends with "Archive Map" */
+             txt.endsWith(' ' + p) ||        /* space before */
+             (p.length >= 8 && txt.indexOf(p) !== -1); /* long pattern substring */
+    });
+  }
 
+  /* Core navigation function.
+     Tries <a>/<button> before <li>, skips our nav and footer,
+     clicks both the found element AND any clickable children.              */
   function doNavigate(target) {
-    var navText     = SECTION_MAP[target]   || '';
-    var fallback    = FALLBACK_MAP[target]  || navText;
+    var patterns = TEXTS[target];
+    if (!patterns || patterns.length === 0) return;
 
-    /* ── STRATEGY 1: click inside the ORIGINAL site nav/header ─────────
-       Searches every clickable element inside any nav or header that is
-       NOT our new dropdown nav. Uses includes() so emoji prefixes are ok. */
-    var origNavs = document.querySelectorAll(
-      'nav:not(#mmmm-dropdown-nav), header:not(#mmmm-dropdown-nav)'
-    );
-    for (var n = 0; n < origNavs.length; n++) {
-      var candidates = origNavs[n].querySelectorAll('a, button, li, span, div');
-      for (var c = 0; c < candidates.length; c++) {
-        var el  = candidates[c];
-        var txt = el.textContent.trim().replace(/\s+/g, ' ');
-        if (txt.length > 60) continue; /* skip long paragraphs */
-        if (navText && (txt === navText || txt.includes(navText))) {
-          el.click(); return true;
+    /* Pass 1 — <a> and <button> (most likely to have JS click handlers) */
+    var pass1 = document.querySelectorAll('a, button');
+    for (var i = 0; i < pass1.length; i++) {
+      var el = pass1[i];
+      if (el.closest('#mmmm-dropdown-nav')) continue;
+      if (el.closest('footer'))             continue;
+      if (matches(el, patterns)) {
+        el.click();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
+    /* Pass 2 — <li> items (mobile nav) */
+    var pass2 = document.querySelectorAll('li');
+    for (var j = 0; j < pass2.length; j++) {
+      var li = pass2[j];
+      if (li.closest('#mmmm-dropdown-nav')) continue;
+      if (li.closest('footer'))             continue;
+      if (matches(li, patterns)) {
+        /* Click the <li> itself */
+        li.click();
+        /* Also click any <a> or <button> child — handles nested anchors */
+        var children = li.querySelectorAll('a, button');
+        for (var k = 0; k < children.length; k++) {
+          children[k].click();
         }
-        if (fallback && txt.includes(fallback)) {
-          el.click(); return true;
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
       }
     }
 
-    /* ── STRATEGY 2: search ALL <li> on page (mobile nav) ──────────────
-       Uses includes() instead of strict equality to handle icon prefixes. */
-    var allLi = document.querySelectorAll('li');
-    for (var i = 0; i < allLi.length; i++) {
-      if (allLi[i].closest('#mmmm-dropdown-nav')) continue;
-      var t = allLi[i].textContent.trim().replace(/\s+/g, ' ');
-      if (t.length > 60) continue;
-      if (navText && (t === navText || t.includes(navText))) {
-        allLi[i].click(); return true;
-      }
-      if (fallback && t.includes(fallback) && fallback.length > 3) {
-        allLi[i].click(); return true;
+    /* Pass 3 — any other element anywhere on the page */
+    var pass3 = document.querySelectorAll('span, div, p');
+    for (var m = 0; m < pass3.length; m++) {
+      var sp = pass3[m];
+      if (sp.closest('#mmmm-dropdown-nav')) continue;
+      if (sp.closest('footer'))             continue;
+      if (matches(sp, patterns)) {
+        sp.click();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
       }
     }
 
-    /* ── STRATEGY 3: search ALL <a> and <button> (not footer, not our nav)  */
-    var allLinks = document.querySelectorAll(
-      'a:not(#mmmm-dropdown-nav a):not(footer a), ' +
-      'button:not(#mmmm-dropdown-nav button):not(footer button)'
-    );
-    for (var j = 0; j < allLinks.length; j++) {
-      var t2 = allLinks[j].textContent.trim().replace(/\s+/g, ' ');
-      if (t2.length > 80) continue;
-      if (navText && (t2 === navText || t2.includes(navText))) {
-        allLinks[j].click(); return true;
-      }
-      if (fallback && t2.includes(fallback) && fallback.length > 4) {
-        allLinks[j].click(); return true;
-      }
-    }
-
-    /* ── STRATEGY 4: try window.location.hash then hashchange event ──── */
-    var hashTargets = [target, target.replace(/-/g, ''), navText.toLowerCase().replace(/\s+/g, '-')];
-    window.location.hash = hashTargets[0];
+    /* Pass 4 — hash-based fallback */
+    window.location.hash = target;
     window.dispatchEvent(new Event('hashchange'));
-
-    /* ── STRATEGY 5: scroll to element with matching ID ─────────────── */
-    var byId = document.getElementById(target) ||
-               document.getElementById(target.replace(/-/g, ''));
-    if (byId) { byId.scrollIntoView({ behavior: 'smooth' }); return true; }
-
-    return false;
+    var byId = document.getElementById(target);
+    if (byId) byId.scrollIntoView({ behavior: 'smooth' });
   }
 
   /* ════════════════════════════════════════════════════════════════════ */
@@ -146,7 +124,7 @@
     var menu   = document.getElementById('dd-menu');
     if (!nav) return;
 
-    /* ── 1. Hamburger ─────────────────────────────────────────────── */
+    /* ── Hamburger ────────────────────────────────────────────────────── */
     if (burger && menu) {
       burger.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -156,7 +134,7 @@
       });
     }
 
-    /* ── 2. Dropdown toggles ──────────────────────────────────────── */
+    /* ── Dropdown toggles ─────────────────────────────────────────────── */
     nav.querySelectorAll('.dd-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -170,7 +148,7 @@
       });
     });
 
-    /* ── 3. Section navigation ────────────────────────────────────── */
+    /* ── Section navigation ───────────────────────────────────────────── */
     nav.querySelectorAll('[data-section]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
@@ -178,39 +156,37 @@
         closeAll();
         closeMobile();
         doNavigate(el.dataset.section);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
 
-    /* ── 4. Brand → Home ──────────────────────────────────────────── */
+    /* ── Brand → Home ─────────────────────────────────────────────────── */
     var brand = nav.querySelector('.dd-brand');
     if (brand) {
       brand.addEventListener('click', function (e) {
         e.preventDefault();
         closeAll(); closeMobile();
         doNavigate('home');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
 
-    /* ── 5. Close on outside click ────────────────────────────────── */
+    /* ── Outside click closes dropdowns ───────────────────────────────── */
     document.addEventListener('click', function () { closeAll(); closeMobile(); });
     nav.querySelectorAll('.dd-panel').forEach(function (p) {
       p.addEventListener('click', function (e) { e.stopPropagation(); });
     });
 
-    /* ── 6. Escape key ────────────────────────────────────────────── */
+    /* ── Escape key ───────────────────────────────────────────────────── */
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeAll(); closeMobile(); }
     });
 
-    /* ── 7. Sticky shadow ─────────────────────────────────────────── */
+    /* ── Sticky shadow ────────────────────────────────────────────────── */
     window.addEventListener('scroll', function () {
       nav.style.boxShadow = window.scrollY > 6
         ? '0 4px 28px rgba(0,0,0,.8)' : '0 2px 18px rgba(0,0,0,.65)';
     }, { passive: true });
 
-    /* ── helpers ──────────────────────────────────────────────────── */
+    /* ── helpers ──────────────────────────────────────────────────────── */
     function closeAll() {
       nav.querySelectorAll('.dd-item.open').forEach(function (i) {
         i.classList.remove('open');
@@ -225,7 +201,6 @@
         burger.setAttribute('aria-expanded', 'false');
       }
     }
-
   });
 
 })();
