@@ -1,0 +1,254 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Mapping Memory, Mapping Meals — Dropdown Navigation CSS
+   File: navbar-dropdown.css
+   Upload to: root of your GitHub repo  (same level as index.html)
+   ═══════════════════════════════════════════════════════════════════════════
+   HOW TO ADD: paste this ONE line inside your existing <head>:
+   <link rel="stylesheet" href="navbar-dropdown.css">
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --dd-bg:        #1a1008;    /* navbar background        */
+  --dd-border:    #8b4513;    /* terracotta accent border  */
+  --dd-text:      #f5e6c8;    /* warm cream text           */
+  --dd-muted:     #a0845c;    /* muted parchment           */
+  --dd-accent:    #c44010;    /* clay terracotta           */
+  --dd-gold:      #d4a843;    /* turmeric gold             */
+  --dd-hover-bg:  #2a1a08;    /* hover row background      */
+  --dd-panel:     #1e1208;    /* dropdown panel bg         */
+  --dd-panel-bdr: #6b3410;    /* dropdown panel border     */
+  --dd-h:         56px;       /* navbar height             */
+  --dd-w:         230px;      /* dropdown width            */
+  --dd-font:      inherit;    /* inherits site font        */
+  --dd-rad:       6px;
+  --dd-shadow:    0 10px 40px rgba(0,0,0,.7);
+  --dd-speed:     .18s;
+}
+
+/* ── hide the OLD flat nav, reveal the new one ─────────────────────────── */
+/* We target the existing nav by its class/id — adjust if needed */
+#main-nav,
+.main-nav,
+nav.site-nav,
+header nav {
+  display: none !important;
+}
+
+/* ── outer shell ─────────────────────────────────────────────────────────── */
+#mmmm-dropdown-nav {
+  position: sticky;
+  top: 0;
+  z-index: 99999;
+  width: 100%;
+  background: var(--dd-bg);
+  border-bottom: 2px solid var(--dd-accent);
+  box-shadow: 0 2px 18px rgba(0,0,0,.65);
+  font-family: var(--dd-font);
+  /* gold-dot top strip */
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--dd-gold) 0px, var(--dd-gold) 3px,
+    transparent 3px, transparent 18px
+  );
+  background-size: 100% 3px;
+  background-repeat: no-repeat;
+  background-position: top;
+  padding-top: 3px;
+}
+
+/* ── inner flex row ──────────────────────────────────────────────────────── */
+.dd-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  height: var(--dd-h);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 4px;
+}
+
+/* ── brand ───────────────────────────────────────────────────────────────── */
+.dd-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  flex-shrink: 0;
+  margin-right: 8px;
+  cursor: pointer;
+}
+.dd-brand-pin {
+  width: 32px; height: 32px;
+  background: var(--dd-accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  border: 2px solid var(--dd-gold);
+  flex-shrink: 0;
+}
+.dd-brand-words { display: flex; flex-direction: column; line-height: 1.2; }
+.dd-brand-main  {
+  font-size: 13.5px; font-weight: 700;
+  color: var(--dd-gold);
+  letter-spacing: .02em;
+  font-family: Georgia, serif;
+}
+.dd-brand-sub {
+  font-size: 9.5px; color: var(--dd-muted);
+  letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* ── divider ─────────────────────────────────────────────────────────────── */
+.dd-sep { width:1px; height:30px; background: var(--dd-panel-bdr);
+          margin: 0 8px; flex-shrink: 0; }
+
+/* ── menu list ───────────────────────────────────────────────────────────── */
+.dd-menu {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; align-items: center; gap: 1px; flex: 1;
+}
+
+/* ── top-level nav item ──────────────────────────────────────────────────── */
+.dd-item { position: relative; }
+
+/* ── top-level button / link ─────────────────────────────────────────────── */
+.dd-btn, .dd-direct {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 11px;
+  background: transparent; border: none; border-radius: var(--dd-rad);
+  color: var(--dd-text); font-size: 13px; font-weight: 500;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: color var(--dd-speed), background var(--dd-speed);
+  font-family: var(--dd-font);
+}
+.dd-btn:hover, .dd-direct:hover,
+.dd-item.open > .dd-btn {
+  color: var(--dd-gold);
+  background: rgba(212,168,67,.09);
+}
+.dd-direct.active { color: var(--dd-gold); }
+
+/* caret */
+.dd-caret {
+  font-size: 8px; color: var(--dd-accent);
+  display: inline-block;
+  transition: transform var(--dd-speed);
+  margin-top: 1px;
+}
+.dd-item.open > .dd-btn .dd-caret { transform: rotate(180deg); }
+
+/* ── dropdown panel ──────────────────────────────────────────────────────── */
+.dd-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  min-width: var(--dd-w);
+  background: var(--dd-panel);
+  border: 1px solid var(--dd-panel-bdr);
+  border-radius: var(--dd-rad);
+  box-shadow: var(--dd-shadow);
+  overflow: hidden;
+  animation: ddFade var(--dd-speed) ease;
+  z-index: 100000;
+}
+@keyframes ddFade {
+  from { opacity:0; transform:translateY(-5px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.dd-item.open > .dd-panel { display: block; }
+
+/* group label inside dropdown */
+.dd-group-label {
+  display: block;
+  padding: 7px 15px 3px;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dd-accent);
+  border-top: 1px solid var(--dd-panel-bdr);
+}
+.dd-group-label:first-child { border-top: none; }
+
+/* dropdown row */
+.dd-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 15px;
+  color: var(--dd-text); font-size: 12.5px;
+  text-decoration: none; cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background var(--dd-speed), color var(--dd-speed),
+              border-left-color var(--dd-speed);
+  background: transparent; border-top: none; width: 100%;
+  text-align: left; font-family: var(--dd-font);
+}
+.dd-row:hover {
+  background: var(--dd-hover-bg);
+  color: var(--dd-gold);
+  border-left-color: var(--dd-accent);
+}
+.dd-row .ico { font-size: 12px; width:16px; text-align:center; flex-shrink:0; opacity:.85; }
+
+/* ── GitHub button ───────────────────────────────────────────────────────── */
+.dd-github {
+  margin-left: auto; flex-shrink: 0;
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 13px;
+  border: 1.5px solid var(--dd-gold); border-radius: 20px;
+  color: var(--dd-gold); font-size: 12px; font-weight: 600;
+  text-decoration: none; white-space: nowrap;
+  transition: background var(--dd-speed), color var(--dd-speed);
+}
+.dd-github:hover { background: var(--dd-gold); color: var(--dd-bg, #1a1008); }
+
+/* ── hamburger (mobile) ──────────────────────────────────────────────────── */
+.dd-burger {
+  display: none; flex-direction: column;
+  justify-content: center; gap: 5px;
+  width: 36px; height: 36px;
+  background: transparent; border: none; cursor: pointer;
+  margin-left: auto; padding: 4px; border-radius: var(--dd-rad);
+}
+.dd-burger span {
+  display: block; width: 21px; height: 2px;
+  background: var(--dd-text); border-radius: 2px;
+  transition: transform .25s, opacity .25s;
+}
+.dd-burger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.dd-burger.open span:nth-child(2){ opacity:0; }
+.dd-burger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+/* ── mobile breakpoint ───────────────────────────────────────────────────── */
+@media (max-width: 920px) {
+  .dd-burger { display: flex; }
+  .dd-sep, .dd-brand-sub { display: none; }
+
+  .dd-menu {
+    display: none;
+    position: absolute;
+    top: var(--dd-h); left: 0; right: 0;
+    flex-direction: column; align-items: stretch;
+    background: var(--dd-bg);
+    border-bottom: 2px solid var(--dd-accent);
+    padding: 6px 0 14px; gap: 0;
+    box-shadow: var(--dd-shadow);
+    max-height: calc(100vh - var(--dd-h));
+    overflow-y: auto;
+  }
+  .dd-menu.open { display: flex; }
+
+  .dd-btn, .dd-direct {
+    width: 100%; padding: 10px 18px;
+    border-radius: 0; font-size: 14px;
+    justify-content: space-between;
+  }
+  .dd-panel {
+    position: static; width: 100%;
+    box-shadow: none; border-radius: 0; animation: none;
+    border-left: 3px solid var(--dd-accent);
+    margin-left: 12px;
+  }
+  .dd-github {
+    margin: 10px 18px 0; justify-content: center;
+  }
+}
