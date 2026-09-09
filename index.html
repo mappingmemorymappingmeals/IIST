@@ -1202,6 +1202,7 @@ a.no-underline { text-decoration: none; }
 .toast-countdown { font-size: 0.7rem; color: var(--ash); margin-top: 0.5rem; }
 
 </style>
+<link rel="stylesheet" href="navbar-dropdown.css">
 </head>
 <body>
 
@@ -1276,70 +1277,221 @@ a.no-underline { text-decoration: none; }
 </div>
 
 <!-- ============================================================ NAVBAR -->
-<nav class="navbar" id="navbar">
-  <a class="navbar-logo" href="#" onclick="showPage('home')">
-    <div class="logo-icon" style="width:46px;height:46px;padding:0;background:none;animation:none">
-      <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
-        <!-- Background circle -->
-        <circle cx="23" cy="23" r="22" fill="#C1440E"/>
-        <circle cx="23" cy="23" r="21" fill="none" stroke="#D4A843" stroke-width="1.5" stroke-dasharray="3 2"/>
-        <!-- Map pin/location indicator -->
-        <path d="M23 8 C18 8 14 12 14 17 C14 23 23 34 23 34 C23 34 32 23 32 17 C32 12 28 8 23 8Z" 
-              fill="#FAF6EF" opacity="0.95"/>
-        <circle cx="23" cy="17" r="5" fill="#C1440E"/>
-        <!-- Leaf/plant motif left -->
-        <path d="M10 28 Q7 22 12 20 Q10 26 15 26 Q12 30 10 28Z" fill="#3D5A3E"/>
-        <!-- Leaf/plant motif right -->
-        <path d="M36 28 Q39 22 34 20 Q36 26 31 26 Q34 30 36 28Z" fill="#3D5A3E"/>
-        <!-- Bottom bowl shape -->
-        <ellipse cx="23" cy="37" rx="11" ry="4" fill="#D4A843" opacity="0.7"/>
-        <path d="M12 37 Q14 42 23 43 Q32 42 34 37" fill="none" stroke="#D4A843" stroke-width="2" opacity="0.7"/>
-        <!-- Steam dots at top -->
-        <circle cx="18" cy="7" r="1.2" fill="#E8923A" opacity="0.7"/>
-        <circle cx="23" cy="5" r="1.5" fill="#E8923A" opacity="0.8"/>
-        <circle cx="28" cy="7" r="1.2" fill="#E8923A" opacity="0.7"/>
-      </svg>
-    </div>
-    <div class="logo-text">
-      <span class="logo-title">Mapping Memory, Mapping Meals</span>
-      <span class="logo-subtitle">West Bengal Indigenous Food Heritage Archive</span>
-    </div>
-  </a>
+<!-- ════════════════════ PASTE THIS IN PLACE OF YOUR OLD <nav> ══════════ -->
+<nav id="mmmm-dropdown-nav" role="navigation" aria-label="Main Navigation">
+  <div class="dd-inner">
 
-  <ul class="nav-links">
-    <li><a onclick="showPage('home')">Home</a></li>
-    <li><a onclick="showPage('about')">About</a></li>
-    <li><a onclick="showPage('archive')">Archive Map</a></li>
-    <li><a onclick="showPage('media-section')">Media</a></li>
-    <li><a onclick="showPage('tribe-cooking')">Recipe Videos</a></li>
-    <li><a onclick="showPage('media-coverage')">Coverage</a></li>
-    <li><a onclick="showPage('academia')">Academia</a></li>
-    <li><a onclick="showPage('team')">Team</a></li>
-    <li><a onclick="showPage('special-credit')">Special Credit</a></li>
-    <li><a onclick="showPage('other-credits')">Credits</a></li>
-    <li><a onclick="showPage('acknowledgement')">Acknowledgement</a></li>
-    <li><a onclick="showPage('submissions')">Submissions</a></li>
-    <li><a onclick="showPage('sub-review')">Review</a></li>
-    <li><a onclick="showPage('sub-blog')">Blog Submit</a></li>
-    <li><a onclick="showPage('sub-edit')">Edit Data</a></li>
-    <li><a onclick="showPage('bibliography')">Bibliography</a></li>
-    <li><a onclick="showPage('blogs')">Blogs</a></li>
-    <li><a onclick="showPage('interviews')">Interviews</a></li>
-    <li><a onclick="showPage('sustainability')">Sustainability</a></li>
-    <li><a onclick="showPage('license')">License</a></li>
-    <li><a onclick="showPage('faq')">FAQ</a></li>
-    <li><a onclick="showPage('feedback')">Feedback</a></li>
-    <li><a onclick="showPage('contact')">Contact</a></li>
-    <li><a onclick="showPage('citation')">Cite</a></li>
-    <li><a href="https://github.com/mappingmemorymappingmeals/mappingmemoryproject/tree/main" target="_blank" style="color:var(--turmeric)">⑂ Repo</a></li>
-  </ul>
+    <!-- Brand -->
+    <a class="dd-brand" role="button" tabindex="0" aria-label="Go to Home">
+      <div class="dd-brand-pin">🌿</div>
+      <div class="dd-brand-words">
+        <span class="dd-brand-main">Mapping Memory, Mapping Meals</span>
+        <span class="dd-brand-sub">West Bengal · Indigenous Archive</span>
+      </div>
+    </a>
 
-  <div class="nav-actions">
-    <button class="a11y-btn" onclick="toggleA11y()">⚙ Access</button>
-    <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
+    <div class="dd-sep" aria-hidden="true"></div>
+
+    <!-- Hamburger -->
+    <button id="dd-burger" class="dd-burger"
+            aria-controls="dd-menu" aria-expanded="false"
+            aria-label="Toggle navigation menu">
       <span></span><span></span><span></span>
     </button>
-  </div>
+
+    <!-- Menu -->
+    <ul id="dd-menu" class="dd-menu" role="menubar">
+
+      <!-- 1. HOME -->
+      <li class="dd-item" role="none">
+        <button class="dd-direct" data-section="home"
+                role="menuitem" aria-label="Home">
+          🏠 Home
+        </button>
+      </li>
+
+      <!-- 2. PROJECT & ABOUT -->
+      <li class="dd-item" role="none">
+        <button class="dd-btn" role="menuitem"
+                aria-haspopup="true" aria-expanded="false">
+          Project &amp; About <span class="dd-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="dd-panel" role="menu" aria-label="Project and About">
+          <span class="dd-group-label">About the Work</span>
+          <li role="none">
+            <button class="dd-row" data-section="about" role="menuitem">
+              <span class="ico">ℹ</span> About the Project
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="team" role="menuitem">
+              <span class="ico">👥</span> Our Team
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="special-credit" role="menuitem">
+              <span class="ico">⭐</span> Special Credit
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="credits" role="menuitem">
+              <span class="ico">🤝</span> Other Credits
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="acknowledgement" role="menuitem">
+              <span class="ico">🙏</span> Acknowledgements
+            </button>
+          </li>
+        </ul>
+      </li>
+
+      <!-- 3. RESEARCH & ARCHIVE -->
+      <li class="dd-item" role="none">
+        <button class="dd-btn" role="menuitem"
+                aria-haspopup="true" aria-expanded="false">
+          Research &amp; Archive <span class="dd-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="dd-panel" role="menu" aria-label="Research and Archive">
+          <span class="dd-group-label">Data &amp; Scholarship</span>
+          <li role="none">
+            <button class="dd-row" data-section="archive-map" role="menuitem">
+              <span class="ico">🗺</span> Archive Map
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="academia" role="menuitem">
+              <span class="ico">🎓</span> Global Academia
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="bibliography" role="menuitem">
+              <span class="ico">📚</span> Bibliography
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="blogs" role="menuitem">
+              <span class="ico">📖</span> Blogs
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="interviews" role="menuitem">
+              <span class="ico">🎙</span> Interviews
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="cite" role="menuitem">
+              <span class="ico">📋</span> Cite This Project
+            </button>
+          </li>
+        </ul>
+      </li>
+
+      <!-- 4. MEDIA & MULTIMEDIA -->
+      <li class="dd-item" role="none">
+        <button class="dd-btn" role="menuitem"
+                aria-haspopup="true" aria-expanded="false">
+          Media &amp; Multimedia <span class="dd-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="dd-panel" role="menu" aria-label="Media and Multimedia">
+          <span class="dd-group-label">Visual &amp; Audio</span>
+          <li role="none">
+            <button class="dd-row" data-section="media" role="menuitem">
+              <span class="ico">🎬</span> Media Section
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="recipe-videos" role="menuitem">
+              <span class="ico">📺</span> 154 Recipe Videos
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="coverage" role="menuitem">
+              <span class="ico">📰</span> Media Coverage
+            </button>
+          </li>
+        </ul>
+      </li>
+
+      <!-- 5. OUTREACH & CONTRIBUTE -->
+      <li class="dd-item" role="none">
+        <button class="dd-btn" role="menuitem"
+                aria-haspopup="true" aria-expanded="false">
+          Outreach &amp; Contribute <span class="dd-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="dd-panel" role="menu" aria-label="Outreach and Contribute">
+          <span class="dd-group-label">Participate</span>
+          <li role="none">
+            <button class="dd-row" data-section="submissions" role="menuitem">
+              <span class="ico">📤</span> Submissions
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="review" role="menuitem">
+              <span class="ico">📝</span> Submit a Review
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="blog-submit" role="menuitem">
+              <span class="ico">✍</span> Submit a Blog
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="edit-data" role="menuitem">
+              <span class="ico">✏</span> Edit Data
+            </button>
+          </li>
+          <span class="dd-group-label">Long-term</span>
+          <li role="none">
+            <button class="dd-row" data-section="sustainability" role="menuitem">
+              <span class="ico">🌱</span> Sustainability
+            </button>
+          </li>
+        </ul>
+      </li>
+
+      <!-- 6. GOVERNANCE & CONTACT -->
+      <li class="dd-item" role="none">
+        <button class="dd-btn" role="menuitem"
+                aria-haspopup="true" aria-expanded="false">
+          Governance &amp; Contact <span class="dd-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="dd-panel" role="menu" aria-label="Governance and Contact">
+          <span class="dd-group-label">Policy &amp; Support</span>
+          <li role="none">
+            <button class="dd-row" data-section="license" role="menuitem">
+              <span class="ico">⚖</span> License &amp; Ethics
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="faq" role="menuitem">
+              <span class="ico">❓</span> FAQ
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="feedback" role="menuitem">
+              <span class="ico">💬</span> Feedback
+            </button>
+          </li>
+          <li role="none">
+            <button class="dd-row" data-section="contact" role="menuitem">
+              <span class="ico">📬</span> Contact Us
+            </button>
+          </li>
+        </ul>
+      </li>
+
+    </ul><!-- /dd-menu -->
+
+    <!-- GitHub button -->
+    <a href="https://github.com/mappingmemorymappingmeals/mappingmemoryproject/tree/main"
+       class="dd-github"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub Repository (opens in new tab)">
+      ⎇ GitHub ↗
+    </a>
+
+  </div><!-- /dd-inner -->
 </nav>
 
 <!-- ============================================================ PAGE: HOME -->
@@ -5286,5 +5438,6 @@ document.getElementById('langSelect').addEventListener('change', function() {
 window.addEventListener('scroll', triggerReveals, { passive: true });
 </script>
 
+<script src="navbar-dropdown.js"></script>
 </body>
 </html>
