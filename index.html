@@ -1201,6 +1201,51 @@ a.no-underline { text-decoration: none; }
 .toast-close:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(193,68,14,0.4); }
 .toast-countdown { font-size: 0.7rem; color: var(--ash); margin-top: 0.5rem; }
 
+/* ── Latest-version User Guide tab ───────────────────────────── */
+.btn-guide-latest {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #1B4332, #2D6A4F);
+  color: #fff; padding: 0.82rem 1.8rem;
+  border-radius: var(--radius-md); text-decoration: none;
+  font-size: 0.88rem; font-weight: 700; letter-spacing: 0.02em;
+  box-shadow: 0 4px 22px rgba(27,67,50,0.55), 0 0 0 2px #D4A843;
+  transition: all var(--transition); border: none; cursor: pointer;
+  animation: guide-pulse-border 2.4s ease-in-out infinite;
+}
+.btn-guide-latest::before {
+  content: "";
+  position: absolute; top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.22), transparent);
+  animation: guide-shimmer 2.8s ease-in-out infinite;
+}
+.btn-guide-latest:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 36px rgba(27,67,50,0.65), 0 0 0 2.5px #D4A843;
+}
+.btn-guide-latest .new-pill {
+  display: inline-flex; align-items: center;
+  background: #D4A843; color: #1A0F0A;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.06em;
+  padding: 0.18em 0.55em; border-radius: 99px;
+  text-transform: uppercase; white-space: nowrap;
+  animation: guide-pill-pop 2.4s ease-in-out infinite;
+}
+@keyframes guide-shimmer {
+  0%   { left: -75%; opacity: 1; }
+  60%  { left: 125%; opacity: 1; }
+  100% { left: 125%; opacity: 0; }
+}
+@keyframes guide-pulse-border {
+  0%, 100% { box-shadow: 0 4px 22px rgba(27,67,50,0.55), 0 0 0 2px #D4A843; }
+  50%       { box-shadow: 0 4px 28px rgba(27,67,50,0.70), 0 0 0 3.5px #E8923A; }
+}
+@keyframes guide-pill-pop {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
 </style>
 <link rel="stylesheet" href="navbar-dropdown.css">
 </head>
@@ -1813,14 +1858,26 @@ a.no-underline { text-decoration: none; }
       <h2 class="section-title">Explore the Archive Map</h2>
       <div class="divider"></div>
 
-      <!-- User Guide + Map buttons row — above the map thumbnail -->
-      <div style="margin-bottom:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
+      <!-- User Guide tabs — latest version above, original below -->
+      <div style="margin-bottom:1.25rem;display:flex;flex-direction:column;gap:0.65rem;align-items:flex-start">
+
+        <!-- ★ NEW — v1.1 animated tab -->
+        <a href="https://docs.google.com/document/d/e/2PACX-1vQ-hSvd_fIPm-wmeW_eeu67B4o5a6MPNw6ToSR0bjZyj6uADlnjxsf1YGvmWJcJ6g/pub"
+           target="_blank" rel="noopener"
+           class="btn-guide-latest">
+          <span class="new-pill">✦ v1.1 New</span>
+          📖 Latest Version — User Guide &amp; Manual for Exploring the Map
+        </a>
+
+        <!-- Original v1.0 tab (kept for reference) -->
         <a href="https://docs.google.com/document/d/e/2PACX-1vTwrWeE-SOd_tTcuih-jjC8cg39qdgozHgkmWKSZM7FnGPkk75cjbBG790XlEz5Hw/pub"
            target="_blank" rel="noopener"
            class="btn-primary"
-           style="position:relative;z-index:5;display:inline-flex;align-items:center;gap:0.45rem;font-size:0.85rem">
+           style="position:relative;z-index:5;display:inline-flex;align-items:center;gap:0.45rem;font-size:0.82rem;opacity:0.78">
           📖 User Guide &amp; Manual for Exploring the Map
+          <span style="font-size:0.7rem;opacity:0.75;margin-left:0.2rem">(v1.0)</span>
         </a>
+
       </div>
 
       <!-- Map thumbnail — clicking opens the live map in a new tab -->
