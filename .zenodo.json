@@ -1,1 +1,33 @@
-
+{
+  "title": "Mapping Memory, Mapping Meals: A Deep-Mapped 3D WebGIS Archive of Indigenous Foodways and Cultural Heritage in West Bengal",
+  "upload_type": "software",
+  "description": "<p><strong>Mapping Memory, Mapping Meals</strong> is an open-access interactive 3D WebGIS archive documenting the foodways, culinary memory, and ecological knowledge of tribal and indigenous communities in West Bengal, India. The archive holds 97 geocoded food entries across more than 35 communities, including the Santal, Toto, Rajbangshi, Mech, Lodha, Rabha, Garo, Kheria Sabar, Oraon, Gorkha, Limbu, Bhutia, and Birhor, among others.</p><p>Each entry is organized across 14 knowledge layers covering ecological setting, community affiliation, ethnobotanical data, culinary technology, temporal and scarcity context, oral tradition, archival sources, erased traditions, sacred foods, medicinal knowledge, cultural significance, geo-location, image references, and historical origins (L1-L14, with L14 spanning seven sub-categories). The layering holds the complexity of food as a cultural object without flattening it into any single discipline.</p><p>Tribal food documentation in West Bengal has been largely confined to ethnobotanical surveys and nutritional studies. Integrated cultural and historical accounts remain thin. The archive responds to this gap by treating food as a site of memory, oral tradition, and community identity rather than as a resource variable alone.</p><p>The archive is built on MapLibre GL JS with React and deployed via Emergent AI's cloud infrastructure over a 3D terrain map with satellite imagery. Users can filter entries by community, knowledge layer, or region. Version 1.1 adds a Guestbook feature for community comments and corrections.</p><p>This project is part of HS02: Mapping of Regional Cuisines, Food and Cultural Studies at the Indian Institute of Space Science and Technology (IIST), Thiruvananthapuram. A conference paper, <em>Culinary Cartographies of Memory: Deep Mapping Indigenous Foodways and Cultural Heritage in West Bengal</em>, was presented at the World Folklore Day Celebrations 2026, University of Hyderabad (20-23 August 2026).</p><p>Live archive: <a href=\"https://indigenous-tastes-3d.preview.emergentagent.com/\">https://indigenous-tastes-3d.preview.emergentagent.com/</a><br>Project site: <a href=\"https://mappingmemorymappingmeals.github.io/IIST/\">https://mappingmemorymappingmeals.github.io/IIST/</a></p>",
+  "creators": [
+    {
+      "name": "Nandi, Simanta",
+      "affiliation": "Indian Institute of Space Science and Technology (IIST) Thiruvananthapuram; IIT (ISM) Dhanbad"
+    }
+  ],
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "language": "eng",
+  "keywords": [
+    "indigenous food cultures",
+    "tribal foodways",
+    "West Bengal",
+    "deep mapping",
+    "WebGIS",
+    "food heritage",
+    "cultural memory",
+    "ethnobotany",
+    "oral tradition",
+    "3D cartography",
+    "digital humanities",
+    "intangible cultural heritage",
+    "India",
+    "food studies",
+    "community mapping",
+    "culinary heritage",
+    "tribal communities"
+  ]
+}
