@@ -1246,6 +1246,23 @@ a.no-underline { text-decoration: none; }
   50%       { transform: scale(1.08); }
 }
 
+
+/* ---- Deep Map v2 embed ---- */
+.deepmap-frame {
+  position: relative; border-radius: var(--radius-lg); overflow: hidden;
+  background: #120b07; box-shadow: var(--shadow-lg), 0 0 0 1px rgba(193,68,14,0.25);
+}
+.deepmap-frame iframe { display: block; width: 100%; height: min(72vh, 680px); min-height: 460px; border: 0; background: #120b07; }
+.deepmap-bar {
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, #2C1810, #1a0f0a); color: rgba(250,246,239,0.85);
+  font-size: 0.82rem; border-bottom: 1px solid rgba(232,146,58,0.25);
+}
+.deepmap-dot { width: 8px; height: 8px; border-radius: 50%; background: #5fbf6a; box-shadow: 0 0 0 0 rgba(95,191,106,0.6); animation: deepmap-live 2s ease-out infinite; }
+@keyframes deepmap-live { 0% { box-shadow: 0 0 0 0 rgba(95,191,106,0.6); } 70% { box-shadow: 0 0 0 8px rgba(95,191,106,0); } 100% { box-shadow: 0 0 0 0 rgba(95,191,106,0); } }
+.deepmap-full { margin-left: auto; color: #E8923A; text-decoration: none; font-weight: 600; }
+.deepmap-full:hover { color: #D4A843; }
+@media (max-width: 640px) { .deepmap-frame iframe { height: 72vh; min-height: 420px; } }
 </style>
 <link rel="stylesheet" href="navbar-dropdown.css">
 </head>
@@ -1613,7 +1630,7 @@ a.no-underline { text-decoration: none; }
         <div class="card reveal">
           <div class="card-icon">🗺</div>
           <div class="card-title">Interactive Deep Map</div>
-          <div class="card-text">A WebGIS platform built with Emergent AI — explore 97 geocoded food entries across West Bengal's tribal belts with multi-layer contextual data.</div>
+          <div class="card-text">A 3D deep map that runs right inside this website — explore 100 food traditions (97 geocoded) across West Bengal's tribal belts, take narrated Talking Tours, and share your own food memory in the Guestbook.</div>
         </div>
         <div class="card reveal">
           <div class="card-icon">🎬</div>
@@ -1745,7 +1762,7 @@ a.no-underline { text-decoration: none; }
             The archive documents the food traditions of the Santal, Toto, Rajbangshi, Mech, Lodha, Rabha, Garo, Kheria Sabar, Oraon, Gorkha, Limbu, Bhutia, Birhor, and over twenty other communities — traditions that have remained invisible in mainstream Indian culinary historiography, occluded behind an urban, dominant-caste bias that even the most encyclopedic print works reproduce.
           </p>
           <p style="font-size:0.92rem;line-height:1.85;color:var(--ash)">
-            The project's WebGIS platform was built through prompt engineering and vibe coding on <strong>Emergent AI</strong>, an agentic multi-agent development platform. This website was developed using <strong>Claude Sonnet 4.6</strong>, an AI by Anthropic.
+            The project's interactive <strong>Deep Map</strong> runs entirely inside this website: an open-source MapLibre GL JS map with 3D terrain, reading the archive from static data files, with no server or database to maintain. This website was developed using <strong>Claude Sonnet 4.6</strong>, and the Deep Map with <strong>Claude</strong>, AI models by Anthropic.
           </p>
           <div class="mt-3 flex flex-wrap gap-2">
             <span class="tag">🎓 IIST Thiruvananthapuram</span>
@@ -1816,8 +1833,8 @@ a.no-underline { text-decoration: none; }
           </div>
           <div class="card reveal">
             <div class="card-icon">🤖</div>
-            <div class="card-title">Emergent AI Vibe Coding</div>
-            <div class="card-text">Full-stack WebGIS application built through prompt engineering on Emergent AI's five-agent platform (Architect, Designer, Developer, Integration, Product Manager agents). React + MapLibre frontend, Python FastAPI backend, MongoDB database — 100% test coverage achieved.</div>
+            <div class="card-title">AI-Assisted Static Deep Map</div>
+            <div class="card-text">The Deep Map is a static web application built with AI assistance (Claude, Anthropic): MapLibre GL JS with 3D terrain, the full archive as one open JSON file, and simplified GeoJSON boundaries — no backend, no database. Talking Tours and Snapshots are composed only from the archive's own fields and read aloud by the browser's speech engine, and a community Guestbook gathers visitor food memories through Google Forms.</div>
           </div>
           <div class="card reveal">
             <div class="card-icon">🗺</div>
@@ -1880,26 +1897,26 @@ a.no-underline { text-decoration: none; }
 
       </div>
 
-      <!-- Map thumbnail — clicking opens the live map in a new tab -->
-      <div class="map-embed-wrapper" id="mapWrapper">
-        <a href="https://tinyurl.com/4ukxfv2n" target="_blank" rel="noopener" style="display:block;position:relative;text-decoration:none">
-          <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&q=70&auto=format"
-               alt="Interactive tribal food map of West Bengal"
-               style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;">
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(44,24,16,0.55),rgba(26,42,26,0.55));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;">
-            <p style="color:var(--cream);font-size:1.15rem;font-weight:700;font-family:var(--font-display)">The Interactive Archive Map</p>
-            <span style="font-size:0.78rem;color:rgba(250,246,239,0.65)">Powered by Emergent AI · MapLibre · React</span>
-          </div>
-        </a>
+      <!-- Deep Map v2: runs inside this website (map.html and map-* files), no external host -->
+      <div class="deepmap-frame" id="mapWrapper">
+        <div class="deepmap-bar">
+          <span class="deepmap-dot" aria-hidden="true"></span>
+          <span><strong>Deep Map v2</strong> · live inside this website</span>
+          <a href="map.html" class="deepmap-full" title="Open the map full screen">⤢ Full screen</a>
+        </div>
+        <iframe src="map.html?embed=1"
+                title="Mapping Memory, Mapping Meals: interactive 3D deep map of West Bengal's indigenous food heritage"
+                loading="lazy" allow="fullscreen; autoplay; clipboard-write"></iframe>
       </div>
 
       <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap">
-        <a href="https://tinyurl.com/4ukxfv2n" target="_blank" rel="noopener" class="btn-primary">🗺 Open Map in New Tab →</a>
+        <a href="map.html" class="btn-primary">🗺 Open the Full-Screen Deep Map →</a>
+        <a href="map.html#index" class="btn-outline">📚 Browse the Archive Index</a>
       </div>
 
       <div class="disclaimer-box">
-        <span class="icon">⏰</span>
-        <span><strong>Please note:</strong> The interactive map is hosted on a free-tier platform. The environment may go to sleep after <strong>30 minutes of inactivity</strong> and takes approximately <strong>20 seconds to wake up</strong> when first visited. If the map appears blank, please wait a moment and refresh. We appreciate your patience — this is a non-funded academic initiative. <em>Built with Emergent AI, an AI-powered software platform.</em></span>
+        <span class="icon">✨</span>
+        <span><strong>New in version 2:</strong> the archive map now runs directly inside this website, with no external server, so it opens straight away and never needs to wake up. Talking Tours are read aloud by your browser's own voice; Chrome or Edge offer the widest choice of English, Bengali and Hindi voices. Every entry has its own shareable link and a ready-made citation, and the new <strong>Guestbook</strong> lets any visitor leave a food memory from their own family or community.</span>
       </div>
 
       <div class="mt-4 grid-3">
@@ -1916,7 +1933,7 @@ a.no-underline { text-decoration: none; }
         <div class="card" style="text-align:center">
           <div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>
           <div class="card-title">14 Filter Layers</div>
-          <div class="card-text">Filter by community, ecology type, food category, sacred status, medicinal use, PVTG designation, and more — all powered by useArchive.js.</div>
+          <div class="card-text">Filter by community, district, food category, PVTG designation, sacred and medicinal lenses, or follow one of 17 thematic trails that link traditions across communities.</div>
         </div>
       </div>
 
@@ -2481,7 +2498,7 @@ a.no-underline { text-decoration: none; }
               Summer Research Intern — Department of Humanities and Social Sciences (HSS),<br>
               Indian Institute of Space Science and Technology (IIST), Thiruvananthapuram, Kerala
             </div>
-            <div class="team-bio">Simanta conceptualised and executed the Mapping Memory, Mapping Meals project — designing the multi-layer data architecture, building the WebGIS prototype through Emergent AI vibe coding, conducting the digital ethnographic research, and integrating OCR extraction, YouTube API mining, and community crowdsourcing into a single archival pipeline.</div>
+            <div class="team-bio">Simanta conceptualised and executed the Mapping Memory, Mapping Meals project — designing the multi-layer data architecture, building the interactive Deep Map through AI-assisted development, conducting the digital ethnographic research, and integrating OCR extraction, YouTube API mining, and community crowdsourcing into a single archival pipeline.</div>
             <a class="team-link" href="https://www.researchgate.net/profile/Simanta-Nandi-3?ev=prf_overview" target="_blank">
               🔬 ResearchGate Profile →
             </a>
@@ -2667,7 +2684,7 @@ a.no-underline { text-decoration: none; }
         <div class="card-icon">🤖</div>
         <div class="card-title">Technology Acknowledgement</div>
         <div class="card-text" style="line-height:1.9">
-          The WebGIS archive platform was built through prompt engineering and vibe coding on <strong>Emergent AI</strong> (emergent.sh), founded by Mukund and Madhav Jha, Y Combinator S24. This project website was developed using <strong>Claude Sonnet 4.6</strong>, an AI by Anthropic. We acknowledge both tools and their respective teams, and declare this AI assistance transparently as a methodological contribution to Community Digital Humanities practice rather than as invisible infrastructure.
+          The interactive Deep Map and this project website were developed with AI assistance from <strong>Claude</strong>, an AI by Anthropic — the website with <strong>Claude Sonnet 4.6</strong>, and the Deep Map with Claude. The map runs on the open-source <strong>MapLibre GL JS</strong> library, with basemaps © OpenStreetMap contributors and CARTO, satellite imagery © Esri, and terrain from the AWS Terrain Tiles. We declare this AI assistance transparently as a methodological contribution to Community Digital Humanities practice rather than as invisible infrastructure.
         </div>
       </div>
 
@@ -2872,25 +2889,25 @@ a.no-underline { text-decoration: none; }
         <div class="cite-content active" id="cite-mla">
           <div class="cite-box">
             <button class="cite-copy" onclick="copyCite('cite-mla')">📋 Copy</button>
-            Nandi, Simanta. <em>Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Tribal Foodways in West Bengal</em>. Indian Institute of Space Science and Technology, 2026, tinyurl.com/4ukxfv2n. Accessed [Day Month Year].
+            Nandi, Simanta. <em>Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Tribal Foodways in West Bengal</em>. Indian Institute of Space Science and Technology, 2026, mappingmemorymappingmeals.github.io/IIST/map.html. Accessed [Day Month Year].
           </div>
         </div>
         <div class="cite-content" id="cite-apa">
           <div class="cite-box">
             <button class="cite-copy" onclick="copyCite('cite-apa')">📋 Copy</button>
-            Nandi, S. (2026). <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous tribal foodways in West Bengal</em> [Digital archive]. Indian Institute of Space Science and Technology. https://tinyurl.com/4ukxfv2n
+            Nandi, S. (2026). <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous tribal foodways in West Bengal</em> [Digital archive]. Indian Institute of Space Science and Technology. https://mappingmemorymappingmeals.github.io/IIST/map.html
           </div>
         </div>
         <div class="cite-content" id="cite-chicago">
           <div class="cite-box">
             <button class="cite-copy" onclick="copyCite('cite-chicago')">📋 Copy</button>
-            Nandi, Simanta. "Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Tribal Foodways in West Bengal." Digital archive. Indian Institute of Space Science and Technology, 2026. https://tinyurl.com/4ukxfv2n.
+            Nandi, Simanta. "Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Tribal Foodways in West Bengal." Digital archive. Indian Institute of Space Science and Technology, 2026. https://mappingmemorymappingmeals.github.io/IIST/map.html.
           </div>
         </div>
         <div class="cite-content" id="cite-harvard">
           <div class="cite-box">
             <button class="cite-copy" onclick="copyCite('cite-harvard')">📋 Copy</button>
-            Nandi, S. (2026) <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous tribal foodways in West Bengal</em>. Indian Institute of Space Science and Technology. Available at: https://tinyurl.com/4ukxfv2n (Accessed: [Day Month Year]).
+            Nandi, S. (2026) <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous tribal foodways in West Bengal</em>. Indian Institute of Space Science and Technology. Available at: https://mappingmemorymappingmeals.github.io/IIST/map.html (Accessed: [Day Month Year]).
           </div>
         </div>
 
@@ -2990,7 +3007,7 @@ a.no-underline { text-decoration: none; }
             <div style="font-size:1.8rem;flex-shrink:0">🔧</div>
             <div>
               <div class="card-title">How should we preserve projects to retain their dynamic features?</div>
-              <div class="card-text" style="line-height:1.85;margin-top:0.35rem">By extrapolating from existing theoretical models and our own project implementation, we have developed programming strategies to maintain site usability and functionality. All data is stored as flat CSV and GeoJSON files — readable without any proprietary software. The dynamic map features are handled entirely via client-side JavaScript (MapLibre) and static data files, meaning the site functions perfectly even if downloaded and opened locally on an offline computer.</div>
+              <div class="card-text" style="line-height:1.85;margin-top:0.35rem">By extrapolating from existing theoretical models and our own project implementation, we have developed programming strategies to maintain site usability and functionality. All data is stored as flat JSON and GeoJSON files — readable without any proprietary software. The dynamic map features are handled entirely via client-side JavaScript (MapLibre) and static data files, meaning the site functions perfectly even if downloaded and opened locally on an offline computer.</div>
             </div>
           </div>
         </div>
@@ -3256,7 +3273,7 @@ a.no-underline { text-decoration: none; }
       <div id="mainCite-mla" class="cite-content active">
         <div class="cite-box" id="cbox-mla">
           <button class="cite-copy" onclick="copyMainCite('cbox-mla')">📋 Copy</button>
-          Nandi, Simanta. <em>Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Food Culture and Cultural Heritage in West Bengal</em>. Indian Institute of Space Science and Technology (IIST), 2026, tinyurl.com/4ukxfv2n. Accessed [Day Month Year].
+          Nandi, Simanta. <em>Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Food Culture and Cultural Heritage in West Bengal</em>. Indian Institute of Space Science and Technology (IIST), 2026, mappingmemorymappingmeals.github.io/IIST/map.html. Accessed [Day Month Year].
         </div>
         <div class="info-box mt-2">💡 <strong>MLA tip:</strong> Include the access date since this is a digital resource. Use sentence case for the title after the colon.</div>
       </div>
@@ -3264,7 +3281,7 @@ a.no-underline { text-decoration: none; }
       <div id="mainCite-apa" class="cite-content">
         <div class="cite-box" id="cbox-apa">
           <button class="cite-copy" onclick="copyMainCite('cbox-apa')">📋 Copy</button>
-          Nandi, S. (2026). <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous food culture and cultural heritage in West Bengal</em> [Digital archive]. Indian Institute of Space Science and Technology (IIST). https://tinyurl.com/4ukxfv2n
+          Nandi, S. (2026). <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous food culture and cultural heritage in West Bengal</em> [Digital archive]. Indian Institute of Space Science and Technology (IIST). https://mappingmemorymappingmeals.github.io/IIST/map.html
         </div>
         <div class="info-box mt-2">💡 <strong>APA 7th tip:</strong> The descriptor [Digital archive] in square brackets follows the italicised title. No access date is needed for stable URLs in APA 7th, but check your institutional guidelines.</div>
       </div>
@@ -3272,7 +3289,7 @@ a.no-underline { text-decoration: none; }
       <div id="mainCite-chicago" class="cite-content">
         <div class="cite-box" id="cbox-chicago">
           <button class="cite-copy" onclick="copyMainCite('cbox-chicago')">📋 Copy</button>
-          Nandi, Simanta. "Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Food Culture and Cultural Heritage in West Bengal." Digital archive. Indian Institute of Space Science and Technology (IIST), 2026. https://tinyurl.com/4ukxfv2n. Accessed [Day Month Year].
+          Nandi, Simanta. "Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Food Culture and Cultural Heritage in West Bengal." Digital archive. Indian Institute of Space Science and Technology (IIST), 2026. https://mappingmemorymappingmeals.github.io/IIST/map.html. Accessed [Day Month Year].
         </div>
         <div class="info-box mt-2">💡 <strong>Chicago 17th tip:</strong> For website/digital archive citations in Chicago, include both the publication date and the access date.</div>
       </div>
@@ -3280,7 +3297,7 @@ a.no-underline { text-decoration: none; }
       <div id="mainCite-harvard" class="cite-content">
         <div class="cite-box" id="cbox-harvard">
           <button class="cite-copy" onclick="copyMainCite('cbox-harvard')">📋 Copy</button>
-          Nandi, S. (2026) <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous food culture and cultural heritage in West Bengal</em>. Digital archive. Indian Institute of Space Science and Technology (IIST). Available at: https://tinyurl.com/4ukxfv2n (Accessed: [Day Month Year]).
+          Nandi, S. (2026) <em>Mapping memory, mapping meals: A multi-layer community digital humanities archive of indigenous food culture and cultural heritage in West Bengal</em>. Digital archive. Indian Institute of Space Science and Technology (IIST). Available at: https://mappingmemorymappingmeals.github.io/IIST/map.html (Accessed: [Day Month Year]).
         </div>
         <div class="info-box mt-2">💡 <strong>Harvard tip:</strong> The access date is essential in Harvard referencing for online sources. Include the full URL.</div>
       </div>
@@ -3288,7 +3305,7 @@ a.no-underline { text-decoration: none; }
       <div id="mainCite-vancouver" class="cite-content">
         <div class="cite-box" id="cbox-vancouver">
           <button class="cite-copy" onclick="copyMainCite('cbox-vancouver')">📋 Copy</button>
-          1. Nandi S. Mapping Memory, Mapping Meals: A multi-layer community digital humanities archive of indigenous food culture and cultural heritage in West Bengal [Internet]. Thiruvananthapuram: Indian Institute of Space Science and Technology (IIST); 2026 [cited [Day Month Year]]. Available from: https://tinyurl.com/4ukxfv2n
+          1. Nandi S. Mapping Memory, Mapping Meals: A multi-layer community digital humanities archive of indigenous food culture and cultural heritage in West Bengal [Internet]. Thiruvananthapuram: Indian Institute of Space Science and Technology (IIST); 2026 [cited [Day Month Year]]. Available from: https://mappingmemorymappingmeals.github.io/IIST/map.html
         </div>
         <div class="info-box mt-2">💡 <strong>Vancouver tip:</strong> Commonly used in medicine and sciences. Numbered sequentially in your reference list. Include [Internet] and [cited date].</div>
       </div>
@@ -3296,7 +3313,7 @@ a.no-underline { text-decoration: none; }
       <div id="mainCite-turabian" class="cite-content">
         <div class="cite-box" id="cbox-turabian">
           <button class="cite-copy" onclick="copyMainCite('cbox-turabian')">📋 Copy</button>
-          Nandi, Simanta. "Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Food Culture and Cultural Heritage in West Bengal." Indian Institute of Space Science and Technology (IIST), 2026. https://tinyurl.com/4ukxfv2n (accessed [Day Month Year]).
+          Nandi, Simanta. "Mapping Memory, Mapping Meals: A Multi-Layer Community Digital Humanities Archive of Indigenous Food Culture and Cultural Heritage in West Bengal." Indian Institute of Space Science and Technology (IIST), 2026. https://mappingmemorymappingmeals.github.io/IIST/map.html (accessed [Day Month Year]).
         </div>
         <div class="info-box mt-2">💡 <strong>Turabian tip:</strong> Preferred for academic papers in humanities. Follows Chicago Notes-Bibliography style with minor variations.</div>
       </div>
@@ -5427,8 +5444,8 @@ a.no-underline { text-decoration: none; }
         Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.en" target="_blank">CC BY-NC 4.0</a>
       </div>
       <div class="footer-tech">
-        Map built with <a href="https://emergent.sh" target="_blank" style="color:rgba(250,246,239,0.4)">Emergent AI</a> ·
-        Website built with <a href="https://claude.ai" target="_blank" style="color:rgba(250,246,239,0.4)">Claude Sonnet 4.6</a> by Anthropic
+        Deep Map built on <a href="https://maplibre.org" target="_blank" style="color:rgba(250,246,239,0.4)">MapLibre GL JS</a> ·
+        Website and Deep Map built with <a href="https://claude.ai" target="_blank" style="color:rgba(250,246,239,0.4)">Claude Sonnet 4.6</a> by Anthropic
       </div>
     </div>
   </div>
@@ -5588,7 +5605,9 @@ const faqs = [
   { q: "How can I contribute my family or community recipes?", a: "You can contribute by filling out our Google Form at forms.gle/c7zhZksCvrDCFMTb7. We welcome recipes, food memories, oral histories, and ecological knowledge from tribal and indigenous communities. All contributions are curated and verified before integration. You may request full attribution or contribute anonymously." },
   { q: "How can I report an error in the archive?", a: "Use our 'Edit Data' submission form under the Submissions section. Please include the Entry ID, the specific field needing correction, the current incorrect value, and the proposed correction with source references. A separate correction sheet upload is required." },
   { q: "How do I cite a record from this archive?", a: "We provide citation formats in MLA 9th, APA 7th, Chicago, and Harvard styles — available on our Bibliography page. When citing a specific food entry, reference the entry ID, the project name, the creator, and the access date." },
-  { q: "The interactive map appears blank. What should I do?", a: "The map is hosted on free-tier infrastructure that goes to sleep after 30 minutes of inactivity. Please wait approximately 20 seconds after clicking to launch the map and then refresh if it remains blank. This is a known limitation of our non-funded free hosting. Click the pulsing play button on the archive page to launch it." },
+  { q: "The interactive map appears blank. What should I do?", a: "Since version 2, the Deep Map runs directly inside this website, so it no longer sleeps or needs to wake up. If the map background looks empty, your connection may be blocking the basemap or terrain tiles; the archive panels, search and Talking Tours still work. Refreshing the page, or opening the full-screen map from the Archive page, usually fixes it." },
+  { q: "How can I share my own food memory without filling in the full contribution form?", a: "Open the Deep Map and click the Guestbook (the open book icon) in the top bar. Write your name, optionally your community, district and a linked food from the archive, and a memory of up to 600 characters. No account is needed. Guestbook reflections are public and moderated by the project team; reflections linked to an archive food also appear on that entry under Visitor memories." },
+  { q: "What can I do on the Deep Map?", a: "Filter the 100 food traditions by community, district, food category, knowledge lens or one of 17 thematic trails; open any entry for its overview, all 13 layers, Layer 14 origins and five study questions; listen to a narrated Talking Tour; take a Snapshot of whatever is in view; cite or share any entry; and leave a food memory in the Guestbook. The interface works in English, Bengali and Hindi." },
   { q: "Is this archive open access? Can I use the content freely?", a: "Yes — the archive is published under Creative Commons Attribution-NonCommercial 4.0 (CC BY-NC 4.0). You are free to share, adapt, and build upon the material for non-commercial purposes, provided you give appropriate credit. Commercial use is not permitted without explicit consent. However, entries marked as sacred or restricted are held in a non-public layer pending community consultation and are not covered by the CC BY-NC 4.0 licence." },
   { q: "Are AI tools used to train commercial models on this data?", a: "No. The archive implements a 'Data Shield' — robots.txt modifications, non-AI-scraping licences, and data-licensing scripts — that prohibit corporate AI systems from scraping this archive's indigenous knowledge to train Large Language Models without community consent. This protects Indigenous data sovereignty." },
   { q: "Which tribal communities does the archive currently cover?", a: "The archive currently documents 7+ communities including the Santal, Toto (PVTG), Rajbangshi, Mech, Lodha (PVTG), Rabha, Garo, Gorkha, Kheria Sabar, Oraon, Birhor (PVTG), Limbu, Bhutia, and Adivasi communities across West Bengal. Coverage is continuously expanding through community contributions and fieldwork." },

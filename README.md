@@ -6,7 +6,7 @@ A community digital humanities archive preserving the endangered food culture an
 
 🌐 **Live Website:** https://mappingmemorymappingmeals.github.io/mappingmemoryproject/
 
-🗺 **Interactive Archive Map:** https://tinyurl.com/4ukxfv2n
+🗺 **Interactive Archive Map:** https://mappingmemorymappingmeals.github.io/IIST/map.html
 
 ---
 
@@ -60,6 +60,6 @@ This work is licensed under [Creative Commons Attribution-NonCommercial 4.0 Inte
 
 ---
 
-*Archive map built with [Emergent AI](https://emergent.sh) · Website built with Claude Sonnet 4.6 by Anthropic*
+*Deep Map built on [MapLibre GL JS](https://maplibre.org) · Website and Deep Map built with Claude by Anthropic*
 
 © 2026 Mapping Memory, Mapping Meals. Designed & managed by [Simanta Nandi](https://www.linkedin.com/in/simanta-nandi-1399841b5/).

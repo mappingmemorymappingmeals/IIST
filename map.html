@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Map · Mapping Memory, Mapping Meals</title>
+<meta name="description" content="An interactive 3D deep map of the food heritage of West Bengal's tribal and indigenous communities: 100 food traditions across 14 knowledge layers.">
+<meta name="theme-color" content="#1a0f0a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E8923A' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 12a2 2 0 104 0 4 4 0 10-8 0 6 6 0 1012 0 8 8 0 10-16 0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="map-maplibre-gl.css">
+<link rel="stylesheet" href="map-app.css">
+</head>
+<body data-theme="dusk">
+<a class="skip" href="#sheet">Skip to archive panel</a>
+
+<div id="map" role="region" aria-label="3D map of West Bengal food heritage places"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<!-- Loading veil -->
+<div id="loader" class="loader" role="status" aria-live="polite">
+  <div class="loader-ring" aria-hidden="true"></div>
+  <p data-l="loading">Preparing the deep map…</p>
+</div>
+
+<!-- Top bar -->
+<header class="topbar notranslate" translate="no">
+  <div class="tb-left">
+    <button id="btnExplore" class="btn btn-chip" aria-controls="explore" aria-expanded="false" title="Explore (E)">
+      <span data-ic="filter"></span><span class="btn-label" data-l="explore">Explore the archive</span>
+      <span id="filterBadge" class="badge" hidden>0</span>
+    </button>
+    <a class="brand" id="brand" href="index.html" title="Back to the project website">
+      <span class="brand-mark" data-ic="spiral" data-size="22"></span>
+      <span class="brand-text">
+        <span class="brand-title" data-l="title">Mapping Memory, Mapping Meals</span>
+        <span class="brand-sub" data-l="brandSub">Deep Map · West Bengal</span>
+      </span>
+    </a>
+  </div>
+
+  <div class="tb-search" role="search">
+    <label class="search">
+      <span class="sr-only" data-l="searchPh">Search</span>
+      <span data-ic="search"></span>
+      <input id="search" type="search" autocomplete="off" spellcheck="false" placeholder="Search foods, communities, places…" aria-controls="searchResults" aria-autocomplete="list" aria-expanded="false" role="combobox">
+      <kbd class="kbd">/</kbd>
+    </label>
+    <div id="searchResults" class="search-results" role="listbox" hidden></div>
+  </div>
+
+  <div class="tb-right">
+    <div class="seg" id="langSeg" role="group" aria-label="Language"></div>
+    <button id="btnSnapshot" class="btn btn-accent" title="Snapshot (S)"><span data-ic="camera"></span><span class="btn-label" data-l="snapshot">Snapshot</span></button>
+    <button id="btnGuestbook" class="btn" title="Guestbook (G)"><span data-ic="book"></span><span class="btn-label" data-l="guestbook">Guestbook</span></button>
+    <button id="btnIndex" class="iconbtn" title="Archive index (I)" aria-label="Archive index"><span data-ic="list"></span></button>
+    <button id="btnGuide" class="iconbtn" title="Guide (?)" aria-label="Guide"><span data-ic="help"></span></button>
+    <button id="btnAbout" class="iconbtn" title="About" aria-label="About"><span data-ic="info"></span></button>
+    <button id="btnSettings" class="iconbtn" title="Settings" aria-label="Settings"><span data-ic="gear"></span></button>
+    <a id="btnFull" class="btn btn-accent" href="map.html" target="_top" hidden><span data-ic="expand"></span><span class="btn-label" data-l="openFull">Open full screen</span></a>
+  </div>
+</header>
+
+<!-- Trail banner -->
+<div id="trailBanner" class="trail-banner" hidden></div>
+
+<!-- Explore panel -->
+<aside id="explore" class="panel explore" aria-label="Explore the archive" hidden>
+  <div class="panel-head notranslate" translate="no">
+    <div>
+      <h2 class="panel-title" data-l="explore">Explore the archive</h2>
+      <p class="count"><b id="countShown">100</b> <span data-l="of">of</span> <span id="countTotal">100</span> <span data-l="visible">traditions shown</span></p>
+      <div class="meter"><span id="countMeter"></span></div>
+    </div>
+    <button class="iconbtn sm" data-close="explore" aria-label="Close"><span data-ic="x"></span></button>
+  </div>
+  <div id="activeFilters" class="active-filters notranslate" translate="no"></div>
+  <div class="panel-body" id="exploreBody"></div>
+</aside>
+
+<!-- Right sheet: place list, entry record, archive index -->
+<aside id="sheet" class="panel sheet" aria-label="Archive record" hidden></aside>
+
+<!-- Map controls -->
+<div class="mapctl notranslate" translate="no" role="toolbar" aria-label="Map controls">
+  <button class="iconbtn" id="ctlIn" aria-label="Zoom in"><span data-ic="plus"></span></button>
+  <button class="iconbtn" id="ctlOut" aria-label="Zoom out"><span data-ic="minus"></span></button>
+  <button class="iconbtn" id="ctlNorth" aria-label="Reset north"><span id="compass" data-ic="compass"></span></button>
+  <span class="ctl-sep"></span>
+  <button class="iconbtn" id="ctl3d" aria-pressed="true" aria-label="3D terrain"><span data-ic="mountain"></span></button>
+  <button class="iconbtn" id="ctlLayers" aria-haspopup="true" aria-expanded="false" aria-label="Basemap"><span data-ic="layers"></span></button>
+  <button class="iconbtn" id="ctlHome" aria-label="West Bengal view"><span data-ic="home"></span></button>
+  <div id="layerPop" class="popover" hidden></div>
+</div>
+
+<!-- Music -->
+<div id="music" class="music notranslate" translate="no">
+  <audio id="audio" preload="none"></audio>
+  <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <button class="iconbtn sm ghost" id="mPrev" aria-label="Previous track"><span data-ic="prev" data-size="14"></span></button>
+  <button class="playbtn" id="mPlay" aria-label="Play tribal music"><span data-ic="play" data-size="16"></span></button>
+  <button class="iconbtn sm ghost" id="mNext" aria-label="Next track"><span data-ic="next" data-size="14"></span></button>
+  <div class="music-meta">
+    <span class="music-eyebrow"><span data-l="music">Tribal music</span> · <span id="mIdx">1/10</span></span>
+    <span class="music-title" id="mTitle">Sohrai</span>
+  </div>
+  <input id="mVol" class="vol" type="range" min="0" max="100" value="35" aria-label="Music volume">
+</div>
+
+<!-- Talking tour -->
+<section id="tour" class="tour" aria-label="Talking tour" hidden>
+  <div class="tour-card">
+    <div class="tour-head">
+      <span id="tourMedal" class="medal"></span>
+      <div class="tour-titles">
+        <p class="eyebrow notranslate" translate="no" data-l="tourEyebrow">Talking Tour</p>
+        <h2 id="tourTitle"></h2>
+        <p id="tourSub" class="muted"></p>
+      </div>
+      <button class="iconbtn" id="tourClose" aria-label="Close tour"><span data-ic="x"></span></button>
+    </div>
+    <div id="tourText" class="tour-text" tabindex="0"></div>
+    <div class="tour-progress"><span id="tourBar"></span></div>
+    <div class="tour-controls notranslate" translate="no">
+      <button class="btn btn-accent lg" id="tourPlay"><span data-ic="play"></span><span data-l="listen">Listen</span></button>
+      <button class="iconbtn" id="tourReplay" title="Start over" aria-label="Start over"><span data-ic="replay"></span></button>
+      <button class="iconbtn" id="tourPrev" aria-label="Previous passage"><span data-ic="chev-l"></span></button>
+      <button class="iconbtn" id="tourNext" aria-label="Next passage"><span data-ic="chev-r"></span></button>
+      <span id="tourCount" class="mono muted"></span>
+      <span class="grow"></span>
+      <label class="mini-select"><span data-l="speed">Pace</span>
+        <select id="tourRate"><option value="0.85">0.85×</option><option value="0.95" selected>1×</option><option value="1.1">1.15×</option><option value="1.25">1.3×</option></select>
+      </label>
+      <label class="mini-select" id="voiceWrap"><span data-l="voice">Voice</span><select id="tourVoice"></select></label>
+    </div>
+    <p id="tourWarn" class="warn notranslate" translate="no" hidden></p>
+    <p class="fineprint notranslate" translate="no" data-l="tourNote"></p>
+  </div>
+</section>
+
+<!-- Intro -->
+<section id="intro" class="intro" aria-labelledby="introTitle" hidden>
+  <div class="intro-card notranslate" translate="no">
+    <div class="intro-warli" data-warli="9"></div>
+    <p class="eyebrow" data-l="introEyebrow">West Bengal · Indigenous Knowledge System</p>
+    <h1 id="introTitle" data-l="title">Mapping Memory, Mapping Meals</h1>
+    <p class="intro-sub" data-l="subtitle"></p>
+    <p class="intro-lead" data-l="introLead"></p>
+    <div class="stats">
+      <div><b>100</b><span data-l="statEntries"></span></div>
+      <div><b>97</b><span data-l="statGeo"></span></div>
+      <div><b>7+</b><span data-l="statCommunities"></span></div>
+      <div><b>10</b><span data-l="statDistricts"></span></div>
+      <div><b>14</b><span data-l="statLayers"></span></div>
+    </div>
+    <div class="seg intro-lang" id="introLang" role="group" aria-label="Language"></div>
+    <div class="intro-actions">
+      <button class="btn btn-accent xl pulse" id="introBegin"><span data-l="begin">Begin the journey</span><span data-ic="chev-r"></span></button>
+      <button class="btn btn-ghost" id="introSkip" data-l="skip">Go straight to the map</button>
+    </div>
+    <label class="check"><input type="checkbox" id="introSound" checked> <span data-l="soundOn">Play tribal music</span></label>
+    <div class="intro-warli" data-warli="9"></div>
+  </div>
+</section>
+
+<!-- Dialogs -->
+<dialog id="dlgSnapshot" class="dialog wide" aria-labelledby="snapTitle"></dialog>
+<dialog id="dlgGuide" class="dialog" aria-labelledby="guideTitle"></dialog>
+<dialog id="dlgAbout" class="dialog wide" aria-labelledby="aboutTitle"></dialog>
+<dialog id="dlgSettings" class="dialog narrow" aria-labelledby="setTitle"></dialog>
+<dialog id="dlgGuestbook" class="dialog xwide" aria-labelledby="dlgGuestbookT"></dialog>
+
+<div id="toast" class="toast notranslate" translate="no" role="status" aria-live="polite" hidden></div>
+<div id="google_translate_element" class="gt-host" aria-hidden="true"></div>
+
+<script src="map-maplibre-gl.js"></script>
+<script type="module" src="map-app.js"></script>
+</body>
+</html>

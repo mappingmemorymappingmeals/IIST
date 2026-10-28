@@ -1,0 +1,6 @@
+{
+  "_help": "Paste two links below to switch on the shared guestbook. See map/README.md, section 'Guestbook'. Leave them empty and reflections are kept on each visitor's own device only.",
+  "formUrl": "",
+  "sheetUrl": "",
+  "requireApproval": false
+}
